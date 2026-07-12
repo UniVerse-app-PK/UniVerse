@@ -284,7 +284,7 @@ export default function ItemDetailPage({ params }) {
         {/* Reviews List */}
         <div className="lg:col-span-7 space-y-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-[#1E1B2E]">Seller Reviews</h3>
+            <h3 className="text-lg font-bold text-[#1E1B2E]">Previous Reviews on Seller Listings</h3>
             <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#F4F3FE] text-[#6C5CE7]">
               ★ {sellerRating.score.toFixed(1)} / 5.0
             </span>
