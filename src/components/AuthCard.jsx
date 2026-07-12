@@ -8,7 +8,7 @@ export default function AuthCard({ children }) {
             <path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5" />
           </svg>
         </div>
-        <span className="font-semibold text-xl text-[#6C5CE7]">
+        <span className="font-righteous text-xl text-[#6C5CE7]">
           Uni<span className="text-[#1E1B2E]">Verse</span>
         </span>
       </div>

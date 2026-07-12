@@ -7,7 +7,7 @@ export default function AboutPage() {
           <path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5" />
         </svg>
       </div>
-      <h1 className="text-xl font-semibold text-[#6C5CE7]">UniVerse</h1>
+      <h1 className="text-xl font-righteous text-[#6C5CE7]">Uni<span className="text-[#1E1B2E]">Verse</span></h1>
       <p className="text-sm text-[#8A86A3] mt-1">V 1.0.0</p>
       <p className="text-sm text-[#8A86A3] mt-4">A trusted marketplace and student ecosystem built for university students.</p>
       <p className="text-xs text-[#B3AFC9] mt-6">© 2026 Foundry_4 Team</p>

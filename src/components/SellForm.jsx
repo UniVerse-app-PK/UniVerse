@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 const categories = ['Books', 'Electronics', 'Furniture', 'Clothes', 'Cycles', 'Sports', 'Wearables', 'Instruments', 'Misc'];
 const conditions = ['New', 'Like new', 'Good condition', 'Fair condition'];
-const MAX_PHOTOS = 3;
+const MAX_PHOTOS = 5;
 
 export default function SellForm() {
   const router = useRouter();
