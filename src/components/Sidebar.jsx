@@ -78,16 +78,7 @@ export default function Sidebar() {
   const activeHref = getActiveHref(pathname);
 
   return (
-    <aside className="w-64 shrink-0 border-r border-[#EEEDFB] bg-white flex flex-col h-screen sticky top-0">
-      <div className="px-6 py-6 flex items-center gap-2 border-b border-[#EEEDFB]">
-        <div className="w-9 h-9 rounded-xl bg-[#6C5CE7] flex items-center justify-center">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-            <path d="M22 10L12 5 2 10l10 5 10-5z" />
-            <path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5" />
-          </svg>
-        </div>
-        <span className="font-righteous text-xl text-[#6C5CE7]">Uni<span className="text-[#1E1B2E]">Verse</span></span>
-      </div>
+    <aside className="w-64 shrink-0 border-r border-[#EEEDFB] bg-white flex flex-col h-[calc(100vh-69px)] sticky top-[69px]">
 
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         <p className="px-3 text-xs font-semibold text-[#B3AFC9] uppercase tracking-wide mb-2">Menu</p>
