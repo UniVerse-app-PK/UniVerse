@@ -12,6 +12,9 @@ export default function SellForm() {
   const [step, setStep] = useState(1);
   const [photos, setPhotos] = useState([]);
   const [form, setForm] = useState({ title: '', category: '', description: '', price: '', condition: '', location: '' });
+  const [isFeatured, setIsFeatured] = useState(false);
+  const [isUrgent, setIsUrgent] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
 
   function update(field, value) {
     setForm((f) => ({ ...f, [field]: value }));
@@ -135,12 +138,69 @@ export default function SellForm() {
               <div><p className="text-[#B3AFC9]">Location</p><p className="font-medium mt-0.5">{form.location || '--'}</p></div>
             </div>
           </div>
-          <div className="rounded-2xl bg-[#F4F3FE] p-4 space-y-2 text-sm">
-            <p className="font-medium mb-1">Make your item sell faster with</p>
-            <label className="flex items-center gap-2"><input type="checkbox" /> Featured listing (1 day)</label>
-            <label className="flex items-center gap-2"><input type="checkbox" /> Urgent sale badge</label>
-            <label className="flex items-center gap-2"><input type="checkbox" /> Verified seller badge</label>
-          </div>
+          {(() => {
+            const sellPrice = parseFloat(form.price) || 0;
+            const featuredPrice = sellPrice * 0.10;
+            const urgentPrice = sellPrice * 0.05;
+            const totalUpgrade = (isFeatured ? featuredPrice : 0) + (isUrgent ? urgentPrice : 0);
+
+            return (
+              <>
+                <div className="rounded-2xl bg-[#F4F3FE] p-4 space-y-2 text-sm">
+                  <p className="font-medium mb-1">Make your item sell faster with</p>
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input 
+                      type="checkbox" 
+                      checked={isFeatured}
+                      onChange={(e) => setIsFeatured(e.target.checked)}
+                      className="accent-[#6C5CE7]" 
+                    /> 
+                    Featured listing (1 day) — <span className="font-semibold text-[#6C5CE7]">Rs. {featuredPrice.toFixed(2)}</span> (10%)
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input 
+                      type="checkbox" 
+                      checked={isUrgent}
+                      onChange={(e) => setIsUrgent(e.target.checked)}
+                      className="accent-[#6C5CE7]" 
+                    /> 
+                    Urgent sale badge — <span className="font-semibold text-[#6C5CE7]">Rs. {urgentPrice.toFixed(2)}</span> (5%)
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input 
+                      type="checkbox" 
+                      checked={isVerified}
+                      onChange={(e) => setIsVerified(e.target.checked)}
+                      className="accent-[#6C5CE7]" 
+                    /> 
+                    Verified seller badge (Purchased from Settings perks)
+                  </label>
+                </div>
+
+                {totalUpgrade > 0 && (
+                  <div className="border border-dashed border-[#CECBF6] bg-[#FAFAFC] rounded-2xl p-4 space-y-3.5 animate-fadeIn">
+                    <div className="flex justify-between items-center pb-2 border-b border-[#EEEDFB]">
+                      <span className="text-xs font-semibold text-[#1E1B2E]">Upgrades Invoice Summary</span>
+                      <span className="text-sm font-bold text-[#6C5CE7]">Rs. {totalUpgrade.toFixed(2)}</span>
+                    </div>
+
+                    <div className="flex gap-4 items-center">
+                      <div className="w-14 h-14 bg-white border border-[#EEEDFB] rounded-xl flex items-center justify-center p-1.5 shrink-0">
+                        {/* Styled mini QR code display */}
+                        <div className="w-full h-full bg-[#1E1B2E] rounded flex items-center justify-center text-white text-[8px] font-mono leading-none text-center font-bold">QR CODE</div>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium text-[#1E1B2E]">Manual Activation Required</p>
+                        <p className="text-[10px] text-[#8A86A3] leading-relaxed">
+                          Scan to pay Rs. {totalUpgrade.toFixed(2)} & contact administrator at <code className="bg-slate-100 px-1 rounded text-red-500 font-semibold">universe.app.pk@gmail.com</code> to activate upgrades.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
           <div className="flex gap-3">
             <button onClick={back} className="px-6 py-2.5 rounded-xl border border-[#EEEDFB] text-sm font-medium">Back</button>
             <button onClick={handlePost} className="px-6 py-2.5 rounded-xl bg-[#6C5CE7] text-white text-sm font-medium">Post item</button>

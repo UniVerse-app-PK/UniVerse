@@ -17,7 +17,7 @@ export default function SettingsPage() {
         <button className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">Edit profile <span className="text-[#B3AFC9]">&rsaquo;</span></button>
         <button className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">Change password <span className="text-[#B3AFC9]">&rsaquo;</span></button>
         <button className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">Privacy and security <span className="text-[#B3AFC9]">&rsaquo;</span></button>
-        <button className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">Premium perks <span className="text-[#B3AFC9]">&rsaquo;</span></button>
+        <Link href="/settings/premium" className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">Premium perks <span className="text-[#B3AFC9]">&rsaquo;</span></Link>
         <button className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">Language <span className="text-[#B3AFC9]">&rsaquo;</span></button>
         <Link href="/about" className="flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">About UniVerse <span className="text-[#B3AFC9]">&rsaquo;</span></Link>
       </div>
