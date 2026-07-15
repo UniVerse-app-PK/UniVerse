@@ -32,9 +32,9 @@ const navItems = [
 ];
 
 const accountItems = [
-  { label: 'Profile', href: '/profile', icon: (
-    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" strokeWidth="2">
-      <circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-7 8-7s8 3 8 7" />
+  { label: 'Premium perks', href: '/premium', icon: (
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2Q12 12 22 12Q12 12 12 22Q12 12 2 12Q12 12 12 2Z" />
     </svg>
   )},
   { label: 'Settings', href: '/settings', icon: (
@@ -73,12 +73,16 @@ function NavLink({ item, activeHref }) {
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen }) {
   const pathname = usePathname();
   const activeHref = getActiveHref(pathname);
 
   return (
-    <aside className="w-64 shrink-0 border-r border-[#EEEDFB] bg-white flex flex-col h-[calc(100vh-69px)] sticky top-[69px]">
+    <aside className={`
+      ${isOpen ? 'flex' : 'hidden'} 
+      md:flex flex-col w-64 fixed left-0 top-[69px] h-[calc(100vh-69px)] border-r border-[#EEEDFB] bg-white z-40
+      transition-all duration-100
+    `}>
 
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         <p className="px-3 text-xs font-semibold text-[#B3AFC9] uppercase tracking-wide mb-2">Menu</p>

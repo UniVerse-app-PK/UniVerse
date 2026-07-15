@@ -79,12 +79,6 @@ export default function PremiumPerksPage() {
 
   return (
     <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-8 animate-fadeIn">
-      {/* Header Breadcrumbs */}
-      <div className="flex items-center gap-2 text-sm text-[#8A86A3]">
-        <Link href="/settings" className="hover:text-[#6C5CE7] transition-colors">Settings</Link>
-        <span>&rsaquo;</span>
-        <span className="text-[#1E1B2E] font-medium">Premium Perks</span>
-      </div>
 
       {/* Hero Header */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#6C5CE7] via-[#8C7AE6] to-[#A29BFE] p-8 md:p-12 text-white shadow-xl shadow-[#6c5ce725]">
