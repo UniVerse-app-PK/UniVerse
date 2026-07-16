@@ -13,6 +13,7 @@ export default function SettingsPage() {
   return (
     <div className="p-8 max-w-xl">
       <h1 className="text-2xl font-semibold mb-5">Settings</h1>
+
       <div className="border border-[#EEEDFB] rounded-2xl divide-y divide-[#EEEDFB] mb-6">
 
         <Link
@@ -56,7 +57,14 @@ export default function SettingsPage() {
         </Link>
 
       </div>
-      <button onClick={handleLogout} className="text-sm font-medium text-[#D85A30]">Log out</button>
+
+      <button
+        onClick={handleLogout}
+        className="text-sm font-medium text-[#D85A30]"
+      >
+        Log out
+      </button>
+
     </div>
   );
 }
