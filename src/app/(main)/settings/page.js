@@ -40,27 +40,20 @@ export default function SettingsPage() {
           <span className="text-[#B3AFC9]">&rsaquo;</span>
         </Link>
 
-        <Link
-          href="/settings/premium"
+        <Link 
+          href="/settings/help-support" 
           className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]"
         >
-          Premium perks
+          Help and support 
           <span className="text-[#B3AFC9]">&rsaquo;</span>
         </Link>
 
         <Link
-  href="/settings/language"
-  className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]"
->
-  Language
-  <span className="text-[#B3AFC9]">&rsaquo;</span>
-</Link>
-        <Link
-          href="/about"
-          className="flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]"
+          href="/settings/language"
+          className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]"
         >
-          About UniVerse
-          <span className="text-[#B3AFC9]">&rsaquo;</span>
+          Language
+        <span className="text-[#B3AFC9]">&rsaquo;</span>
         </Link>
 
       </div>

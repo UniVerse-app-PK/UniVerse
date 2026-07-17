@@ -162,22 +162,6 @@ export default function EditProfilePage() {
         </div>
 
 
-
-        <div>
-          <label className="text-sm text-[#8A86A3]">
-            Bio
-          </label>
-
-          <textarea
-            name="bio"
-            value={profile.bio}
-            onChange={handleChange}
-            rows="4"
-            className="w-full mt-1 border border-[#EEEDFB] rounded-xl p-3"
-          />
-        </div>
-
-
       </div>
 
 

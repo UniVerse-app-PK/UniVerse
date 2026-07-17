@@ -155,7 +155,7 @@ export default function SellForm() {
                       onChange={(e) => setIsFeatured(e.target.checked)}
                       className="accent-[#6C5CE7]" 
                     /> 
-                    Featured listing (1 day) — <span className="font-semibold text-[#6C5CE7]">Rs. {featuredPrice.toFixed(2)}</span> (10%)
+                    Featured listing (1 week) — <span className="font-semibold text-[#6C5CE7]">Rs. {featuredPrice.toFixed(2)}</span> (10%)
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer select-none">
                     <input 

@@ -6,11 +6,10 @@ import Link from 'next/link';
 export default function PrivacySecurityPage() {
   const [settings, setSettings] = useState({
     twoFactor: false,
-    profilePublic: true,
-    allowMessages: true,
+    WhatsAppcontact: true,
+    personalizedAds: true,
     emailNotifications: true,
     pushNotifications: false,
-    locationSharing: false,
   });
 
   function toggleSetting(name) {
@@ -46,31 +45,31 @@ export default function PrivacySecurityPage() {
 
         <div className="flex items-center justify-between p-4">
           <div>
-            <p className="font-medium">Public Profile</p>
+            <p className="font-medium">Contact via WhatsApp</p>
             <p className="text-sm text-[#8A86A3]">
-              Allow other students to view your profile.
+              Allow other students to contact you via WhatsApp instead of call.
             </p>
           </div>
 
           <input
             type="checkbox"
-            checked={settings.profilePublic}
-            onChange={() => toggleSetting('profilePublic')}
+            checked={settings.WhatsAppcontact}
+            onChange={() => toggleSetting('WhatsAppcontact')}
           />
         </div>
 
         <div className="flex items-center justify-between p-4">
           <div>
-            <p className="font-medium">Allow Messages</p>
+            <p className="font-medium">Personalized ads</p>
             <p className="text-sm text-[#8A86A3]">
-              Let users contact you.
+              See targeted advertisements based on your interests.
             </p>
           </div>
 
           <input
             type="checkbox"
-            checked={settings.allowMessages}
-            onChange={() => toggleSetting('allowMessages')}
+            checked={settings.personalizedAds}
+            onChange={() => toggleSetting('personalizedAds')}
           />
         </div>
 
@@ -104,35 +103,7 @@ export default function PrivacySecurityPage() {
           />
         </div>
 
-        <div className="flex items-center justify-between p-4">
-          <div>
-            <p className="font-medium">Location Sharing</p>
-            <p className="text-sm text-[#8A86A3]">
-              Share your city with buyers and sellers.
-            </p>
-          </div>
-
-          <input
-            type="checkbox"
-            checked={settings.locationSharing}
-            onChange={() => toggleSetting('locationSharing')}
-          />
-        </div>
-
       </div>
-
-      <div className="mt-6 rounded-xl border border-[#EEEDFB] p-4">
-        <h2 className="font-medium mb-2">Blocked Users</h2>
-
-        <p className="text-sm text-[#8A86A3] mb-3">
-          You have no blocked users.
-        </p>
-
-        <button className="text-[#6C5CE7] font-medium text-sm">
-          Manage Blocked Users
-        </button>
-      </div>
-
       <div className="flex gap-3 mt-8">
 
         <button
