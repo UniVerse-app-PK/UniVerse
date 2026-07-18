@@ -3,9 +3,11 @@ const Notification = require("../models/Notification");
 
 // @desc  Create a new listing
 // @route POST /api/listings
+const FREE_MONTHLY_LISTING_LIMIT = 5;
+
 exports.createListing = async (req, res) => {
   try {
-    const { title, category, description, price, condition, location, photos, featured } =
+    const { title, category, description, price, condition, location, photos, featured, urgent } =
       req.body;
 
     if (!title || !category || !description || !price || !condition || !location) {
@@ -15,6 +17,28 @@ exports.createListing = async (req, res) => {
       });
     }
 
+    if (!req.user.isPremium) {
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+
+      const listingsThisMonth = await Listing.countDocuments({
+        seller: req.user._id,
+        createdAt: { $gte: startOfMonth },
+      });
+
+      if (listingsThisMonth >= FREE_MONTHLY_LISTING_LIMIT) {
+        return res.status(403).json({
+          success: false,
+          message: `Free plan is limited to ${FREE_MONTHLY_LISTING_LIMIT} listings per month. Upgrade to Premium for unlimited listings.`,
+        });
+      }
+    }
+
+    // Featured/urgent boosts are a Premium perk - silently ignore the flag
+    // for free users rather than trusting whatever the client sent.
+    const canBoost = !!req.user.isPremium;
+
     const listing = await Listing.create({
       title,
       category,
@@ -23,7 +47,8 @@ exports.createListing = async (req, res) => {
       condition,
       location,
       photos: photos || [],
-      featured: Boolean(featured),
+      featured: canBoost ? Boolean(featured) : false,
+      urgent: canBoost ? Boolean(urgent) : false,
       seller: req.user._id,
     });
 
@@ -57,7 +82,7 @@ exports.getListings = async (req, res) => {
     }
 
     const listings = await Listing.find(filter)
-      .populate("seller", "name university avatar")
+      .populate("seller", "name university avatar isPremium verifiedSeller")
       .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, count: listings.length, listings });
@@ -76,7 +101,7 @@ exports.getListingById = async (req, res) => {
       { $inc: { views: 1 } },
       { new: true }
     )
-      .populate("seller", "name university avatar phone")
+      .populate("seller", "name university avatar phone isPremium verifiedSeller")
       .populate("reviews.user", "name avatar");
 
     if (!listing) {
@@ -116,8 +141,6 @@ exports.updateListing = async (req, res) => {
       "location",
       "photos",
       "status",
-      "featured",
-      "urgent",
     ];
 
     allowedFields.forEach((field) => {
@@ -125,6 +148,12 @@ exports.updateListing = async (req, res) => {
         listing[field] = req.body[field];
       }
     });
+
+    // Featured/urgent boosts are a Premium perk.
+    if (req.user.isPremium) {
+      if (req.body.featured !== undefined) listing.featured = Boolean(req.body.featured);
+      if (req.body.urgent !== undefined) listing.urgent = Boolean(req.body.urgent);
+    }
 
     await listing.save();
 

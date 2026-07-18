@@ -139,6 +139,8 @@ exports.verifyUser = async (req, res) => {
         name: user.name,
         email: user.email,
         university: user.university,
+        isPremium: user.isPremium,
+        verifiedSeller: user.verifiedSeller,
       },
     });
   } catch (error) {
@@ -190,6 +192,8 @@ exports.loginUser = async (req, res) => {
         email: user.email,
         university: user.university,
         avatar: user.avatar,
+        isPremium: user.isPremium,
+        verifiedSeller: user.verifiedSeller,
       },
     });
   } catch (error) {

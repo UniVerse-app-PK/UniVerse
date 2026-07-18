@@ -62,6 +62,14 @@ const userSchema = new mongoose.Schema(
         ref: "Listing",
       },
     ],
+    isPremium: {
+      type: Boolean,
+      default: false,
+    },
+    verifiedSeller: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

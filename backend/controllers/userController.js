@@ -32,6 +32,8 @@ exports.updateProfile = async (req, res) => {
         university: user.university,
         phone: user.phone,
         avatar: user.avatar,
+        isPremium: user.isPremium,
+        verifiedSeller: user.verifiedSeller,
       },
     });
   } catch (error) {
@@ -125,6 +127,62 @@ exports.getSavedListings = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).populate("savedListings");
     res.status(200).json({ success: true, listings: user.savedListings });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// @desc  Subscribe to Premium (mock - no real payment processor is wired up)
+// @route PUT /api/users/me/premium
+exports.subscribePremium = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    user.isPremium = true;
+    user.verifiedSeller = true;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        university: user.university,
+        phone: user.phone,
+        avatar: user.avatar,
+        isPremium: user.isPremium,
+        verifiedSeller: user.verifiedSeller,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// @desc  Cancel Premium
+// @route DELETE /api/users/me/premium
+exports.unsubscribePremium = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    user.isPremium = false;
+    user.verifiedSeller = false;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        university: user.university,
+        phone: user.phone,
+        avatar: user.avatar,
+        isPremium: user.isPremium,
+        verifiedSeller: user.verifiedSeller,
+      },
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server Error" });
