@@ -31,17 +31,7 @@ const listingSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: [
-        "Books",
-        "Electronics",
-        "Furniture",
-        "Clothes",
-        "Cycles",
-        "Sports",
-        "Wearables",
-        "Instruments",
-        "Misc",
-      ],
+      trim: true,
     },
     description: {
       type: String,

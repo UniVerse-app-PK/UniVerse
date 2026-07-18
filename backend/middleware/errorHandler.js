@@ -32,6 +32,24 @@ const errorHandler = (err, req, res, next) => {
       .join(", ");
   }
 
+  // Multer upload errors (file too large, too many files, wrong field, etc.)
+  if (err.name === "MulterError") {
+    statusCode = 400;
+    if (err.code === "LIMIT_FILE_SIZE") {
+      message = "Image is too large";
+    } else if (err.code === "LIMIT_UNEXPECTED_FILE") {
+      message = "Too many files, or wrong field name";
+    } else {
+      message = err.message;
+    }
+  }
+
+  // Our own imageFileFilter rejection ("Only image files are allowed")
+  if (err.message === "Only image files are allowed") {
+    statusCode = 400;
+    message = err.message;
+  }
+
   res.status(statusCode).json({
     success: false,
     message,

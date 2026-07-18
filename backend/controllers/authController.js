@@ -3,6 +3,8 @@ const bcrypt = require("bcryptjs");
 const validator = require("validator");
 const generateToken = require("../utils/generateToken");
 const generateOTP = require("../utils/generateOTP");
+const sendEmail = require("../utils/sendEmail");
+const { otpEmailTemplate } = require("../utils/emailTemplates");
 
 // @desc  Register a new user
 // @route POST /api/auth/register
@@ -55,11 +57,26 @@ exports.registerUser = async (req, res) => {
       verificationOTPExpires: otpExpires,
     });
 
-    // NOTE: No email service is configured yet. For now the OTP is logged
-    // to the server console so you can test the verify flow locally.
-    // Plug in a real email provider (e.g. nodemailer + Gmail/SendGrid) in
-    // utils/sendEmail.js and call it here when you're ready.
+    // Always log the OTP too, so local testing still works even if the
+    // email provider isn't configured yet or is momentarily down.
     console.log(`📩 Verification OTP for ${user.email}: ${otp}`);
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "Verify your UniVerse account",
+        html: otpEmailTemplate({
+          name: user.name,
+          otp,
+          message:
+            "Use the code below to verify your email and activate your UniVerse account.",
+        }),
+      });
+    } catch (emailError) {
+      // Don't fail registration just because the email didn't go out -
+      // the OTP is still valid and logged above for dev/testing.
+      console.error("⚠️  Failed to send verification email:", emailError.message);
+    }
 
     res.status(201).json({
       success: true,
@@ -208,6 +225,21 @@ exports.forgotPassword = async (req, res) => {
 
     console.log(`🔑 Password reset OTP for ${user.email}: ${otp}`);
 
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "Reset your UniVerse password",
+        html: otpEmailTemplate({
+          name: user.name,
+          otp,
+          message:
+            "Use the code below to reset your UniVerse password. If you didn't request this, please ignore.",
+        }),
+      });
+    } catch (emailError) {
+      console.error("⚠️  Failed to send password reset email:", emailError.message);
+    }
+
     res.status(200).json({
       success: true,
       message: "If that email is registered, a reset code has been sent",
@@ -258,6 +290,43 @@ exports.resetPassword = async (req, res) => {
     await user.save();
 
     res.status(200).json({ success: true, message: "Password reset successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// @desc  Change password while logged in (requires current password)
+// @route PUT /api/auth/change-password
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Current and new password are required",
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be at least 6 characters",
+      });
+    }
+
+    const user = await User.findById(req.user._id).select("+password");
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Current password is incorrect" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.status(200).json({ success: true, message: "Password changed successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server Error" });

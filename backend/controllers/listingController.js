@@ -1,10 +1,11 @@
 const Listing = require("../models/Listing");
+const Notification = require("../models/Notification");
 
 // @desc  Create a new listing
 // @route POST /api/listings
 exports.createListing = async (req, res) => {
   try {
-    const { title, category, description, price, condition, location, photos } =
+    const { title, category, description, price, condition, location, photos, featured } =
       req.body;
 
     if (!title || !category || !description || !price || !condition || !location) {
@@ -22,6 +23,7 @@ exports.createListing = async (req, res) => {
       condition,
       location,
       photos: photos || [],
+      featured: Boolean(featured),
       seller: req.user._id,
     });
 
@@ -178,6 +180,15 @@ exports.addReview = async (req, res) => {
     listing.reviews.push({ user: req.user._id, score, comment });
     await listing.save();
 
+    if (listing.seller.toString() !== req.user._id.toString()) {
+      Notification.create({
+        user: listing.seller,
+        text: `${req.user.name} left a ${score}★ review on "${listing.title}"`,
+        type: "review",
+        link: `/marketplace/${listing._id}`,
+      }).catch((err) => console.error("Failed to create review notification:", err.message));
+    }
+
     res.status(201).json({ success: true, reviews: listing.reviews });
   } catch (error) {
     console.error(error);
@@ -189,9 +200,11 @@ exports.addReview = async (req, res) => {
 // @route GET /api/listings/mine
 exports.getMyListings = async (req, res) => {
   try {
-    const listings = await Listing.find({ seller: req.user._id }).sort({
-      createdAt: -1,
-    });
+    const listings = await Listing.find({ seller: req.user._id })
+      .populate("reviews.user", "name avatar")
+      .sort({
+        createdAt: -1,
+      });
 
     res.status(200).json({ success: true, listings });
   } catch (error) {
