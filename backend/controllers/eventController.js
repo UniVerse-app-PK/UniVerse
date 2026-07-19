@@ -1,4 +1,5 @@
 const Event = require("../models/Event");
+const { notifyAllExcept } = require("../services/notificationService");
 
 // @desc  Create an event
 // @route POST /api/events
@@ -19,6 +20,13 @@ exports.createEvent = async (req, res) => {
       org,
       category,
       createdBy: req.user._id,
+    });
+
+    notifyAllExcept({
+      exceptUserId: req.user._id,
+      text: `New event posted: "${title}"`,
+      type: "event",
+      link: `/events`,
     });
 
     res.status(201).json({ success: true, event });

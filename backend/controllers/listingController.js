@@ -1,5 +1,6 @@
 const Listing = require("../models/Listing");
 const Notification = require("../models/Notification");
+const { notifyAllExcept } = require("../services/notificationService");
 
 // @desc  Create a new listing
 // @route POST /api/listings
@@ -50,6 +51,13 @@ exports.createListing = async (req, res) => {
       featured: canBoost ? Boolean(featured) : false,
       urgent: canBoost ? Boolean(urgent) : false,
       seller: req.user._id,
+    });
+
+    notifyAllExcept({
+      exceptUserId: req.user._id,
+      text: `${req.user.name} listed a new item: "${title}"`,
+      type: "listing",
+      link: `/marketplace/${listing._id}`,
     });
 
     res.status(201).json({ success: true, listing });
