@@ -70,7 +70,6 @@ export default function ProfilePage() {
         <Link href="/marketplace/listings" className="flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">My listings <span className="text-[#B3AFC9]">&rsaquo;</span></Link>
         <Link href="/marketplace/saved" className="flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">Saved items <span className="text-[#B3AFC9]">&rsaquo;</span></Link>
         <Link href="/profile/reviews" className="flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">My reviews <span className="text-[#B3AFC9]">&rsaquo;</span></Link>
-        <Link href="/settings" className="flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">Help and support <span className="text-[#B3AFC9]">&rsaquo;</span></Link>
       </div>
     </div>
   );

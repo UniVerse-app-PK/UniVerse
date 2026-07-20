@@ -19,10 +19,9 @@ export default function SettingsPage() {
         <Link href="/settings/edit-profile" className="flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">Edit profile <span className="text-[#B3AFC9]">&rsaquo;</span></Link>
         <Link href="/settings/change-password" className="flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">Change password <span className="text-[#B3AFC9]">&rsaquo;</span></Link>
         <Link href="/settings/privacy" className="flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">Privacy and security <span className="text-[#B3AFC9]">&rsaquo;</span></Link>
-        <Link href="/settings/premium" className="flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">Premium perks <span className="text-[#B3AFC9]">&rsaquo;</span></Link>
         <div className="flex items-center justify-between px-5 py-3.5 text-sm font-medium text-[#B3AFC9] cursor-not-allowed" title="Coming soon">Language <span className="text-xs">Coming soon</span></div>
-        <Link href="/about" className="flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">About UniVerse <span className="text-[#B3AFC9]">&rsaquo;</span></Link>
-      </div>
+        <Link href="/settings/help-support" className="flex items-center justify-between px-5 py-3.5 text-sm font-medium hover:bg-[#FAFAFC]">Help & Support <span className="text-[#B3AFC9]">&rsaquo;</span></Link>
+        </div>
       <button onClick={handleLogout} className="text-sm font-medium text-[#D85A30]">Log out</button>
     </div>
   );

@@ -34,9 +34,9 @@ const navItems = [
 ];
 
 const accountItems = [
-  { label: 'Profile', href: '/profile', icon: (
-    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" strokeWidth="2">
-      <circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 4-7 8-7s8 3 8 7" />
+  { label: 'Premium perks', href: '/premium', icon: (
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2Q12 12 22 12Q12 12 12 22Q12 12 2 12Q12 12 12 2Z" />
     </svg>
   )},
   { label: 'Settings', href: '/settings', icon: (
@@ -75,7 +75,7 @@ function NavLink({ item, activeHref }) {
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen }) {
   const pathname = usePathname();
   const activeHref = getActiveHref(pathname);
 
@@ -90,17 +90,11 @@ export default function Sidebar() {
   const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
-    <aside className="w-64 shrink-0 border-r border-[#EEEDFB] bg-white flex flex-col h-screen sticky top-0">
-      <div className="px-6 py-6 flex items-center gap-2 border-b border-[#EEEDFB]">
-        <div className="w-9 h-9 rounded-xl bg-[#6C5CE7] flex items-center justify-center">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-            <path d="M22 10L12 5 2 10l10 5 10-5z" />
-            <path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5" />
-          </svg>
-        </div>
-        <span className="font-righteous text-xl text-[#6C5CE7]">Uni<span className="text-[#1E1B2E]">Verse</span></span>
-      </div>
-
+    <aside className={`
+      ${isOpen ? 'flex' : 'hidden'} 
+      md:flex flex-col w-64 fixed left-0 top-[69px] h-[calc(100vh-69px)] border-r border-[#EEEDFB] bg-white z-40
+      transition-all duration-100
+    `}>
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         <p className="px-3 text-xs font-semibold text-[#B3AFC9] uppercase tracking-wide mb-2">Menu</p>
         {navItems.map((item) => <NavLink key={item.href} item={item} activeHref={activeHref} />)}

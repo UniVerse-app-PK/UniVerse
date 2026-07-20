@@ -137,7 +137,7 @@ export default function ChatApp() {
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-[calc(100vh-110px)]">
       <div className="w-80 border-r border-[#EEEDFB] p-5 overflow-y-auto shrink-0">
         <h2 className="text-lg font-semibold mb-4">Chats</h2>
         {error && <p className="text-xs text-red-500 mb-3">{error}</p>}
