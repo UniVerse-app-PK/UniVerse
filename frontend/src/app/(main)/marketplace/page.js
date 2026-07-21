@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ItemCard from '@/components/ItemCard';
 import { categories } from '@/data/marketplaceData';
 import { fetchListings } from '@/lib/listings';
 
-export default function MarketplacePage() {
+function MarketplaceContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category') || 'All';
   const [active, setActive] = useState(initialCategory);
@@ -62,5 +62,13 @@ export default function MarketplacePage() {
         <p className="text-sm text-[#8A86A3]">No items in this category yet.</p>
       )}
     </div>
+  );
+}
+
+export default function MarketplacePage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-sm text-[#8A86A3]">Loading marketplace...</div>}>
+      <MarketplaceContent />
+    </Suspense>
   );
 }

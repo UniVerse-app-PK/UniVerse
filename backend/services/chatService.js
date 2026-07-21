@@ -44,7 +44,7 @@ const createMessage = async ({ chatId, senderId, text }) => {
       user: recipientId,
       text: `New message from ${message.sender.name}`,
       type: "message",
-      link: `/chats/${chat._id}`,
+      link: `/chats?chatId=${chat._id}`,
     }).catch((err) =>
       console.error("Failed to create message notification:", err.message)
     );

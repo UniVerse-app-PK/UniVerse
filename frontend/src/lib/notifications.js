@@ -12,12 +12,20 @@ function timeAgo(dateStr) {
 }
 
 export function mapNotification(n) {
+  let link = n.link || '';
+  if (link.startsWith('/chats/')) {
+    const chatId = link.replace('/chats/', '');
+    link = chatId ? `/chats?chatId=${chatId}` : '/chats';
+  } else if (n.type === 'message' && !link) {
+    link = '/chats';
+  }
+
   return {
     id: n._id,
     text: n.text,
     time: timeAgo(n.createdAt),
     read: n.read,
-    link: n.link || '',
+    link,
     type: n.type,
   };
 }

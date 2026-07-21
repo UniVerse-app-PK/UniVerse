@@ -31,7 +31,7 @@ export default function ChatApp() {
     }
   }, []);
 
-  // Initial load: create/open a chat if arriving from "Chat with Seller", else load list
+  // Initial load: create/open a chat if arriving from "Chat with Seller", or open specific chatId, else load list
   useEffect(() => {
     if (!getToken()) {
       router.push('/login');
@@ -50,7 +50,14 @@ export default function ChatApp() {
         }
       } else {
         const data = await loadChats();
-        if (data[0]) setActiveId(data[0].id);
+        const chatIdParam = searchParams.get('chatId');
+        if (chatIdParam && data.some((c) => c.id === chatIdParam)) {
+          setActiveId(chatIdParam);
+        } else if (chatIdParam) {
+          setActiveId(chatIdParam);
+        } else if (data[0]) {
+          setActiveId(data[0].id);
+        }
       }
       setLoading(false);
     })();
