@@ -40,10 +40,9 @@ export default function MyListingsPage() {
       </div>
       <div className="space-y-3">
         {filtered.map((item) => (
-          <Link
+          <div
             key={item.id}
-            href={`/marketplace/${item.id}`}
-            className="group flex items-center gap-4 rounded-xl border border-[#EEEDFB] p-3 transition hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(108,92,231,0.10)]"
+            className="group flex items-center gap-4 rounded-xl border border-[#EEEDFB] p-3 transition hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(108,92,231,0.10)] bg-white"
           >
             <div className="w-16 h-16 rounded-lg bg-[#F4F3FE] shrink-0 flex items-center justify-center text-xs text-[#6C5CE7] text-center px-2 overflow-hidden">
               {item.photos[0] ? (
@@ -57,11 +56,18 @@ export default function MyListingsPage() {
               <p className="text-sm text-[#6C5CE7] font-semibold">{item.price}</p>
               <p className="text-xs text-[#B3AFC9]">Views: {item.views}</p>
             </div>
-            <div className="text-right text-xs text-[#8A86A3]">
+            <div className="text-right text-xs text-[#8A86A3] flex flex-col justify-between items-end h-full py-1">
               <p>{item.status === 'active' ? 'Active' : 'Sold'}</p>
-              <p className="mt-2 font-medium text-[#6C5CE7]">View info</p>
+              <div className="flex gap-3 mt-3">
+                <Link href={`/marketplace/${item.id}`} className="font-medium text-[#6C5CE7] hover:underline">
+                  View
+                </Link>
+                <Link href={`/marketplace/${item.id}/edit`} className="font-medium text-[#6C5CE7] hover:underline">
+                  Edit
+                </Link>
+              </div>
             </div>
-          </Link>
+          </div>
         ))}
         {filtered.length === 0 && <p className="text-sm text-[#8A86A3]">Nothing here yet.</p>}
       </div>
