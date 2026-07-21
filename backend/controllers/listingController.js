@@ -116,7 +116,24 @@ exports.getListingById = async (req, res) => {
       return res.status(404).json({ success: false, message: "Listing not found" });
     }
 
-    res.status(200).json({ success: true, listing });
+    const sellerListings = await Listing.find({ seller: listing.seller._id }).populate("reviews.user", "name avatar");
+    const sellerReviews = sellerListings.reduce((acc, l) => acc.concat(l.reviews), []);
+    sellerReviews.sort((a, b) => b.createdAt - a.createdAt);
+
+    let sellerRating = { score: 0, count: 0 };
+    if (sellerReviews.length > 0) {
+      const total = sellerReviews.reduce((sum, r) => sum + r.score, 0);
+      sellerRating = {
+        score: Math.round((total / sellerReviews.length) * 10) / 10,
+        count: sellerReviews.length,
+      };
+    }
+
+    const listingObj = listing.toObject();
+    listingObj.reviews = sellerReviews;
+    listingObj.sellerRating = sellerRating;
+
+    res.status(200).json({ success: true, listing: listingObj });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server Error" });
@@ -226,7 +243,11 @@ exports.addReview = async (req, res) => {
       }).catch((err) => console.error("Failed to create review notification:", err.message));
     }
 
-    res.status(201).json({ success: true, reviews: listing.reviews });
+    const sellerListings = await Listing.find({ seller: listing.seller }).populate("reviews.user", "name avatar");
+    const sellerReviews = sellerListings.reduce((acc, l) => acc.concat(l.reviews), []);
+    sellerReviews.sort((a, b) => b.createdAt - a.createdAt);
+
+    res.status(201).json({ success: true, reviews: sellerReviews });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server Error" });
