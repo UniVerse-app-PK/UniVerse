@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import EventCard from '@/components/EventCard';
 import { getToken, getUser } from '@/lib/auth';
-import { fetchEvents, createEvent, deleteEvent } from '@/lib/events';
+import { fetchEvents, deleteEvent } from '@/lib/events';
+import EventForm from '@/components/EventForm';
 
 const tabs = ['All', 'Internships', 'Research', 'Courses', 'Societies'];
 const formCategories = ['Internships', 'Research', 'Courses', 'Societies', 'Other'];
@@ -16,8 +17,6 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: '', meta: '', org: '', category: 'Other' });
-  const [posting, setPosting] = useState(false);
   const [me, setMe] = useState(null);
 
   useEffect(() => {
@@ -41,26 +40,7 @@ export default function EventsPage() {
     setShowForm((v) => !v);
   }
 
-  async function handleAddEvent(e) {
-    e.preventDefault();
-    if (!form.title.trim() || !form.org.trim()) {
-      setError('Title and organization are required.');
-      return;
-    }
-    setPosting(true);
-    setError('');
-    try {
-      await createEvent(form);
-      setForm({ title: '', meta: '', org: '', category: 'Other' });
-      setShowForm(false);
-      const data = await fetchEvents(active);
-      setEvents(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setPosting(false);
-    }
-  }
+
 
   async function handleDelete(id) {
     if (!window.confirm('Delete this event?')) return;
@@ -82,17 +62,16 @@ export default function EventsPage() {
       </div>
 
       {showForm && (
-        <form onSubmit={handleAddEvent} className="mb-6 p-5 rounded-2xl border border-[#EEEDFB] space-y-3 max-w-lg">
-          <input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="Event title" className="w-full px-3 py-2.5 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] text-sm focus:outline-none focus:border-[#6C5CE7]" />
-          <input value={form.org} onChange={(e) => setForm((f) => ({ ...f, org: e.target.value }))} placeholder="Organization / society" className="w-full px-3 py-2.5 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] text-sm focus:outline-none focus:border-[#6C5CE7]" />
-          <input value={form.meta} onChange={(e) => setForm((f) => ({ ...f, meta: e.target.value }))} placeholder="Date / deadline info" className="w-full px-3 py-2.5 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] text-sm focus:outline-none focus:border-[#6C5CE7]" />
-          <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} className="w-full px-3 py-2.5 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] text-sm focus:outline-none focus:border-[#6C5CE7]">
-            {formCategories.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
-          <button type="submit" disabled={posting} className="px-5 py-2.5 rounded-xl bg-[#6C5CE7] text-white text-sm font-medium disabled:opacity-60">
-            {posting ? 'Posting...' : 'Post event'}
-          </button>
-        </form>
+        <div className="mb-6 max-w-lg">
+          <EventForm 
+            onSuccess={async () => {
+              setShowForm(false);
+              const data = await fetchEvents(active);
+              setEvents(data);
+            }} 
+            onCancel={() => setShowForm(false)} 
+          />
+        </div>
       )}
 
       <div className="flex gap-2 mb-6 flex-wrap">
