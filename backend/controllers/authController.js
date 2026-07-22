@@ -35,27 +35,40 @@ exports.registerUser = async (req, res) => {
 
     const existingUser = await User.findOne({ email: email.toLowerCase() });
 
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: "Email already registered",
-      });
-    }
-
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const otp = generateOTP();
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 min
 
-    const user = await User.create({
-      name,
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      university,
-      phone: phone || "",
-      verificationOTP: otp,
-      verificationOTPExpires: otpExpires,
-    });
+    let user;
+
+    if (existingUser) {
+      if (existingUser.verified) {
+        return res.status(400).json({
+          success: false,
+          message: "Email already registered",
+        });
+      }
+      
+      // Overwrite unverified account details
+      existingUser.name = name;
+      existingUser.password = hashedPassword;
+      existingUser.university = university;
+      existingUser.phone = phone || "";
+      existingUser.verificationOTP = otp;
+      existingUser.verificationOTPExpires = otpExpires;
+      await existingUser.save();
+      user = existingUser;
+    } else {
+      user = await User.create({
+        name,
+        email: email.toLowerCase(),
+        password: hashedPassword,
+        university,
+        phone: phone || "",
+        verificationOTP: otp,
+        verificationOTPExpires: otpExpires,
+      });
+    }
 
     // Always log the OTP too, so local testing still works even if the
     // email provider isn't configured yet or is momentarily down.
@@ -142,6 +155,60 @@ exports.verifyUser = async (req, res) => {
         isPremium: user.isPremium,
         verifiedSeller: user.verifiedSeller,
       },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// @desc  Resend verification OTP
+// @route POST /api/auth/resend-otp
+exports.resendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (user.verified) {
+      return res.status(400).json({ success: false, message: "User is already verified" });
+    }
+
+    const otp = generateOTP();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+
+    user.verificationOTP = otp;
+    user.verificationOTPExpires = otpExpires;
+    await user.save();
+
+    console.log(`📩 Resent Verification OTP for ${user.email}: ${otp}`);
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "Verify your UniVerse account",
+        html: otpEmailTemplate({
+          name: user.name,
+          otp,
+          message: "Here is your new verification code to activate your UniVerse account.",
+        }),
+      });
+    } catch (emailError) {
+      console.error("⚠️  Failed to resend verification email:", emailError.message);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Verification code resent successfully. Check console for OTP (dev mode).",
+      ...(process.env.NODE_ENV !== "production" && { devOTP: otp }),
     });
   } catch (error) {
     console.error(error);

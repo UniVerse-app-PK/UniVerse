@@ -9,7 +9,10 @@ import { savePendingEmail } from '@/lib/auth';
 
 export default function SignupPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: '', email: '', university: '', phone: '', password: '', agree: false });
+  const [form, setForm] = useState({ name: '', university: '', phone: '', password: '', agree: false });
+  const [emailType, setEmailType] = useState('nust');
+  const [emailUsername, setEmailUsername] = useState('');
+  const [emailSubdomain, setEmailSubdomain] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -20,16 +23,32 @@ export default function SignupPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
+    
+    let finalEmail = '';
+    if (emailType === 'nust') {
+      if (!emailUsername.trim() || !emailSubdomain.trim()) {
+        setError('Please enter your full university email');
+        return;
+      }
+      finalEmail = `${emailUsername.trim()}@${emailSubdomain.trim()}.nust.edu.pk`;
+    } else {
+      if (!emailUsername.trim()) {
+        setError('Please enter your username');
+        return;
+      }
+      finalEmail = `${emailUsername.trim()}@seecs.edu.pk`;
+    }
+
     setLoading(true);
     try {
       await api.post('/auth/register', {
         name: form.name,
-        email: form.email,
+        email: finalEmail,
         university: form.university,
         phone: form.phone,
         password: form.password,
       });
-      savePendingEmail(form.email);
+      savePendingEmail(finalEmail);
       router.push('/verify');
     } catch (err) {
       setError(err.message);
@@ -49,13 +68,38 @@ export default function SignupPage() {
           <label className="text-sm font-medium mb-1.5 block">Name</label>
           <input required value={form.name} onChange={(e) => update('name', e.target.value)} placeholder="Enter your name" className="w-full px-3 py-2.5 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] text-sm focus:outline-none focus:border-[#6C5CE7]" />
         </div>
+        
         <div>
-          <label className="text-sm font-medium mb-1.5 block">University email</label>
-          <input type="email" required value={form.email} onChange={(e) => update('email', e.target.value)} placeholder="you@university.edu.pk" className="w-full px-3 py-2.5 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] text-sm focus:outline-none focus:border-[#6C5CE7]" />
+          <label className="text-sm font-medium mb-2 block">University email</label>
+          <div className="flex gap-4 mb-3">
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="radio" name="emailType" value="nust" checked={emailType === 'nust'} onChange={() => setEmailType('nust')} className="accent-[#6C5CE7]" />
+              Students & Faculty
+            </label>
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="radio" name="emailType" value="seecs" checked={emailType === 'seecs'} onChange={() => setEmailType('seecs')} className="accent-[#6C5CE7]" />
+              SEECS Faculty
+            </label>
+          </div>
+          
+          {emailType === 'nust' ? (
+            <div className="flex items-center w-full px-3 py-2.5 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] focus-within:border-[#6C5CE7]">
+              <input type="text" required value={emailUsername} onChange={(e) => setEmailUsername(e.target.value)} placeholder="username" className="w-2/5 bg-transparent text-sm focus:outline-none" />
+              <span className="text-sm text-gray-500 px-1 font-medium">@</span>
+              <input type="text" required value={emailSubdomain} onChange={(e) => setEmailSubdomain(e.target.value)} placeholder="domain" className="w-1/4 bg-transparent text-sm focus:outline-none text-center" />
+              <span className="text-sm text-gray-500 whitespace-nowrap pl-1">.nust.edu.pk</span>
+            </div>
+          ) : (
+            <div className="flex items-center w-full px-3 py-2.5 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] focus-within:border-[#6C5CE7]">
+              <input type="text" required value={emailUsername} onChange={(e) => setEmailUsername(e.target.value)} placeholder="username" className="flex-1 bg-transparent text-sm focus:outline-none" />
+              <span className="text-sm text-gray-500 whitespace-nowrap pl-2 border-l border-gray-200">@seecs.edu.pk</span>
+            </div>
+          )}
         </div>
+
         <div>
           <label className="text-sm font-medium mb-1.5 block">University</label>
-          <input required value={form.university} onChange={(e) => update('university', e.target.value)} placeholder="e.g. UET Taxila" className="w-full px-3 py-2.5 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] text-sm focus:outline-none focus:border-[#6C5CE7]" />
+          <input required value={form.university} onChange={(e) => update('university', e.target.value)} placeholder="e.g. NUST Islamabad" className="w-full px-3 py-2.5 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] text-sm focus:outline-none focus:border-[#6C5CE7]" />
         </div>
         <div>
           <label className="text-sm font-medium mb-1.5 block">Phone number</label>

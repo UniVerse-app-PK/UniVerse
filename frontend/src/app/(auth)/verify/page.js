@@ -13,11 +13,13 @@ export default function VerifyPage() {
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
   const email = typeof window !== 'undefined' ? getPendingEmail() : '';
 
   async function handleVerify(e) {
     e.preventDefault();
     setError('');
+    setInfo('');
     setLoading(true);
     try {
       const data = await api.post('/auth/verify', { email, otp });
@@ -27,6 +29,21 @@ export default function VerifyPage() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleResend() {
+    if (!email) return;
+    setError('');
+    setInfo('');
+    setResending(true);
+    try {
+      await api.post('/auth/resend-otp', { email });
+      setInfo('A new verification code has been sent to your email.');
+    } catch (err) {
+      setError(err.message || 'Failed to resend code');
+    } finally {
+      setResending(false);
     }
   }
 
@@ -56,9 +73,19 @@ export default function VerifyPage() {
             {loading ? 'Verifying...' : 'Verify'}
           </button>
         </form>
-        <p className="text-sm text-[#8A86A3] mt-6">
-          <Link href="/login" className="text-[#6C5CE7] font-medium">Back to sign in</Link>
-        </p>
+        
+        <div className="mt-6 flex flex-col gap-2 text-sm">
+          <button 
+            onClick={handleResend} 
+            disabled={resending || !email} 
+            className="text-[#6C5CE7] font-medium disabled:opacity-60 bg-transparent border-none cursor-pointer"
+          >
+            {resending ? 'Resending...' : 'Resend code'}
+          </button>
+          <p className="text-[#8A86A3]">
+            <Link href="/login" className="text-[#6C5CE7] font-medium">Back to sign in</Link>
+          </p>
+        </div>
       </div>
     </AuthCard>
   );
