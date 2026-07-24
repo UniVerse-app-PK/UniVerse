@@ -45,6 +45,16 @@ export default function ItemDetailPage({ params }) {
     };
   }, [resolvedParams.id]);
 
+  useEffect(() => {
+    if (item) {
+      const user = getUser();
+      if (user && user.savedListings) {
+        const savedIds = user.savedListings.map(id => typeof id === 'object' ? (id._id || id.id) : id);
+        setIsSaved(savedIds.includes(item.id));
+      }
+    }
+  }, [item]);
+
   const toggleSave = async () => {
     if (!getToken()) {
       window.location.href = '/login';
@@ -53,6 +63,23 @@ export default function ItemDetailPage({ params }) {
     try {
       const res = await toggleSavedListing(item.id);
       setIsSaved(res.saved);
+
+      const user = getUser();
+      if (user) {
+        if (!user.savedListings) user.savedListings = [];
+        const savedIds = user.savedListings.map(id => typeof id === 'object' ? (id._id || id.id) : id);
+        if (res.saved) {
+          if (!savedIds.includes(item.id)) {
+            user.savedListings.push(item.id);
+          }
+        } else {
+          user.savedListings = user.savedListings.filter(id => {
+            const idStr = typeof id === 'object' ? (id._id || id.id) : id;
+            return idStr !== item.id;
+          });
+        }
+        localStorage.setItem('user', JSON.stringify(user));
+      }
     } catch (err) {
       setFormError(err.message);
     }
@@ -125,7 +152,8 @@ export default function ItemDetailPage({ params }) {
   const hasPhotos = item.photos && item.photos.length > 0;
   const sellerRating = item.sellerRating || { score: 0, count: 0 };
   const reviews = item.reviews || [];
-  const currentUserId = getUser()?.id;
+  const currentUser = getUser();
+  const currentUserId = currentUser?.id || currentUser?._id;
   const isOwner = !!(item.sellerId && currentUserId && String(item.sellerId) === String(currentUserId));
 
   return (

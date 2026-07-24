@@ -53,13 +53,6 @@ exports.createListing = async (req, res) => {
       seller: req.user._id,
     });
 
-    notifyAllExcept({
-      exceptUserId: req.user._id,
-      text: `${req.user.name} listed a new item: "${title}"`,
-      type: "listing",
-      link: `/marketplace/${listing._id}`,
-    });
-
     res.status(201).json({ success: true, listing });
   } catch (error) {
     console.error(error);
@@ -80,7 +73,10 @@ exports.getListings = async (req, res) => {
     }
 
     if (search) {
-      filter.title = { $regex: search, $options: "i" };
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
     }
 
     if (minPrice || maxPrice) {
@@ -181,6 +177,21 @@ exports.updateListing = async (req, res) => {
     }
 
     await listing.save();
+
+    // Notify users who saved this listing
+    const User = require("../models/User");
+    const usersWhoSaved = await User.find({ savedListings: listing._id }).select("_id");
+    if (usersWhoSaved.length > 0) {
+      const notificationDocs = usersWhoSaved.map((u) => ({
+        user: u._id,
+        text: `Your saved item "${listing.title}" has been updated.`,
+        type: "listing",
+        link: `/marketplace/${listing._id}`,
+      }));
+      await Notification.insertMany(notificationDocs).catch((err) =>
+        console.error("Failed to send update notifications to savers:", err.message)
+      );
+    }
 
     res.status(200).json({ success: true, listing });
   } catch (error) {

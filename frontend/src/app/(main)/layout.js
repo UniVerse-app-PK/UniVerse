@@ -1,11 +1,32 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
+import { getUser, refreshUserSession } from '@/lib/auth';
 
 export default function MainLayout({ children }) {
   const [isOpen, setIsOpen] = useState(false); // Controls the mobile sidebar state
+
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const prevUser = getUser();
+        if (!prevUser) return;
+        const freshUser = await refreshUserSession();
+        if (prevUser.isPremium !== freshUser.isPremium) {
+          window.location.reload();
+        }
+      } catch (err) {
+        console.error('Failed to sync user premium status', err);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     /* 1. Lock screen height and hide overflow on the root container */

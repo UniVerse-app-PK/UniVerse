@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { api } from './api';
 
 export function saveSession(token, user) {
   localStorage.setItem('token', token);
@@ -69,3 +70,10 @@ export function setAdminVerified(val) {
     sessionStorage.removeItem('adminVerified');
   }
 }
+
+export async function refreshUserSession() {
+  const data = await api.get('/auth/me', { auth: true });
+  saveSession(getToken(), data.user);
+  return data.user;
+}
+

@@ -4,7 +4,7 @@ import { getUser } from './auth';
 // Picks the "other" participant to display as the chat name/avatar
 function getOtherParticipant(chat) {
   const me = getUser();
-  const others = (chat.participants || []).filter((p) => p._id !== me?.id);
+  const others = (chat.participants || []).filter((p) => p._id !== (me?.id || me?._id));
   return others[0] || chat.participants?.[0];
 }
 
@@ -31,7 +31,7 @@ export async function fetchMessages(chatId) {
   const me = getUser();
   return data.messages.map((m) => ({
     id: m._id,
-    from: m.sender?._id === me?.id ? 'me' : 'them',
+    from: m.sender?._id === (me?.id || me?._id) ? 'me' : 'them',
     text: m.text,
     time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
   }));
