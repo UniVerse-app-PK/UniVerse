@@ -13,11 +13,16 @@ const listingRoutes = require("./routes/listingRoutes");
 const eventRoutes = require("./routes/eventRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const reportRoutes = require("./routes/reportRoutes");
+const seedAdmins = require("./utils/seedAdmins");
 
 const app = express();
 
 // Connect to MongoDB
-connectDB();
+connectDB().then(() => {
+  seedAdmins();
+});
 
 // Middleware
 app.use(
@@ -41,6 +46,8 @@ app.use("/api/listings", listingRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/reports", reportRoutes);
 
 // Error handling (must be last)
 app.use(notFound);

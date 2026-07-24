@@ -17,6 +17,7 @@ export function mapChat(chat) {
     listing: chat.listing || null,
     lastMessage: chat.lastMessage || '',
     time: chat.lastMessageAt ? new Date(chat.lastMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+    otherUserId: other?._id || null,
   };
 }
 

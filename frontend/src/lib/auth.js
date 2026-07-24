@@ -50,3 +50,22 @@ export function useRequireAuth() {
 
   return ready;
 }
+
+export function isAdmin() {
+  const user = getUser();
+  return user?.role === 'admin';
+}
+
+export function isAdminVerified() {
+  if (typeof window === 'undefined') return false;
+  return sessionStorage.getItem('adminVerified') === 'true';
+}
+
+export function setAdminVerified(val) {
+  if (typeof window === 'undefined') return;
+  if (val) {
+    sessionStorage.setItem('adminVerified', 'true');
+  } else {
+    sessionStorage.removeItem('adminVerified');
+  }
+}

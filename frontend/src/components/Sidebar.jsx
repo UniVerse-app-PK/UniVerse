@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getUser } from '@/lib/auth';
+import { getUser, isAdmin } from '@/lib/auth';
 
 const navItems = [
   { label: 'Home', href: '/', icon: (
@@ -82,8 +82,10 @@ export default function Sidebar({ isOpen }) {
   // Read from localStorage only after mount so the server-rendered markup
   // (which has no access to localStorage) matches the client on hydration.
   const [user, setUser] = useState(null);
+  const [showAdmin, setShowAdmin] = useState(false);
   useEffect(() => {
     setUser(getUser());
+    setShowAdmin(isAdmin());
   }, []);
 
   const displayName = user?.name || 'Guest';
@@ -101,6 +103,20 @@ export default function Sidebar({ isOpen }) {
 
         <p className="px-3 text-xs font-semibold text-[#B3AFC9] uppercase tracking-wide mt-5 mb-2">Account</p>
         {accountItems.map((item) => <NavLink key={item.href} item={item} activeHref={activeHref} />)}
+        {showAdmin && (
+          <NavLink
+            item={{
+              label: 'Admin Panel',
+              href: '/admin',
+              icon: (
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" strokeWidth="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+              ),
+            }}
+            activeHref={activeHref}
+          />
+        )}
       </nav>
 
       <div className="p-4 border-t border-[#EEEDFB]">

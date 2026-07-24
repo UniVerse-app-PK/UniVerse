@@ -88,7 +88,7 @@ exports.updateEvent = async (req, res) => {
       return res.status(404).json({ success: false, message: "Event not found" });
     }
 
-    if (event.createdBy && event.createdBy.toString() !== req.user._id.toString()) {
+    if (req.user.role !== "admin" && event.createdBy && event.createdBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
         message: "Not authorized to update this event",
@@ -126,7 +126,7 @@ exports.deleteEvent = async (req, res) => {
       return res.status(404).json({ success: false, message: "Event not found" });
     }
 
-    if (event.createdBy && event.createdBy.toString() !== req.user._id.toString()) {
+    if (req.user.role !== "admin" && event.createdBy && event.createdBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
         message: "Not authorized to delete this event",

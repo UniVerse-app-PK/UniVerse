@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { fetchMyChats, fetchMessages, sendChatMessage, startChat, deleteChat, clearChat } from '@/lib/chats';
 import { getToken } from '@/lib/auth';
+import ReportModal from '@/components/ReportModal';
 
 export default function ChatApp() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function ChatApp() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
   const pollRef = useRef(null);
 
   const loadChats = useCallback(async () => {
@@ -178,6 +180,7 @@ export default function ChatApp() {
             {menuOpen && (
               <div className="absolute right-6 top-14 w-52 bg-white border border-[#EEEDFB] rounded-xl shadow-lg py-1.5 z-10">
                 <button onClick={handleClearChat} className="w-full text-left px-4 py-2.5 text-sm hover:bg-[#F4F3FE]">Clear conversation</button>
+                <button onClick={() => { setReportModalOpen(true); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-orange-500 hover:bg-orange-50">Report User</button>
                 <button onClick={handleDeleteChat} className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50">Delete chat</button>
               </div>
             )}
@@ -200,6 +203,14 @@ export default function ChatApp() {
         </div>
       ) : (
         <div className="flex-1 flex items-center justify-center text-sm text-[#8A86A3]">Select a chat to start messaging</div>
+      )}
+      {reportModalOpen && active && (
+        <ReportModal
+          targetType="user"
+          targetId={active.otherUserId}
+          targetName={active.name}
+          onClose={() => setReportModalOpen(false)}
+        />
       )}
     </div>
   );
