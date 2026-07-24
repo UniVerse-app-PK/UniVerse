@@ -405,96 +405,99 @@ export default function AdminPanelPage() {
           </div>
 
           <div className="bg-white rounded-3xl border border-[#EEEDFB] overflow-hidden shadow-sm">
-            {usersLoading ? (
-              <div className="p-12 text-center text-sm text-[#8A86A3]">Loading users list...</div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-[#FAFAFC] border-b border-[#EEEDFB] text-xs font-semibold text-[#8A86A3] uppercase tracking-wider">
-                      <th className="px-6 py-4">Name</th>
-                      <th className="px-6 py-4">Email</th>
-                      <th className="px-6 py-4">University</th>
-                      <th className="px-6 py-4">Badges</th>
-                      <th className="px-6 py-4">Warnings</th>
-                      <th className="px-6 py-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#EEEDFB] text-sm text-[#1E1B2E]">
-                    {users.map((u) => {
-                      const isBannedActive = u.isBanned && (!u.banExpires || new Date(u.banExpires) > new Date());
-                      return (
-                        <tr key={u._id} className="hover:bg-[#FAFAFC]/50 transition-colors">
-                          <td className="px-6 py-4 font-semibold">{u.name}</td>
-                          <td className="px-6 py-4 text-[#8A86A3]">{u.email}</td>
-                          <td className="px-6 py-4">{u.university}</td>
-                          <td className="px-6 py-4 space-x-1.5 space-y-1">
-                            <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${u.role === 'admin' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-[#FAFAFC] text-[#8A86A3]'}`}>
-                              {u.role}
-                            </span>
-                            {u.isPremium && (
-                              <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#6C5CE7]/10 text-[#6C5CE7] border border-[#6C5CE7]/20">
-                                Premium
-                              </span>
-                            )}
-                            {isBannedActive && (
-                              <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-500 border border-red-100" title={`Reason: ${u.banReason || 'None'}`}>
-                                Banned
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 text-xs font-semibold text-[#8A86A3]">{u.warnings?.length || 0} issued</td>
-                          <td className="px-6 py-4 text-right space-x-2 whitespace-nowrap">
-                            <button
-                              onClick={() => handleTogglePremium(u._id)}
-                              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${u.isPremium ? 'bg-purple-50 text-purple-600 hover:bg-purple-100' : 'bg-[#FAFAFC] text-[#8A86A3] hover:bg-[#F4F3FE] hover:text-[#6C5CE7]'}`}
-                            >
-                              {u.isPremium ? 'Remove Premium' : 'Give Premium'}
-                            </button>
+  {usersLoading ? (
+    <div className="p-12 text-center text-sm text-[#8A86A3]">Loading users list...</div>
+  ) : (
+    <div className="overflow-x-auto">
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr className="bg-[#FAFAFC] border-b border-[#EEEDFB] text-xs font-semibold text-[#8A86A3] uppercase tracking-wider">
+            <th className="px-6 py-4">Name</th>
+            <th className="px-6 py-4">Email</th>
+            <th className="px-6 py-4">University</th>
+            <th className="px-6 py-4">Badges</th>
+            <th className="px-6 py-4">Warnings</th>
+            <th className="px-6 py-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-[#EEEDFB] text-sm text-[#1E1B2E]">
+          {users.map((u) => {
+            const isBannedActive = u.isBanned && (!u.banExpires || new Date(u.banExpires) > new Date());
+            return (
+              <tr key={u._id} className="hover:bg-[#FAFAFC]/50 transition-colors">
+                <td className="px-6 py-4 font-semibold">{u.name}</td>
+                {/* Applied break-all & max-w-xs so long email strings break onto new lines */}
+                <td className="px-0 py-4 text-[#8A86A3] break-all max-w-[220px]">
+                  {u.email}
+                </td>
+                <td className="px-6 py-4">{u.university}</td>
+                <td className="px-6 py-4 space-x-1.5 space-y-1">
+                  <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${u.role === 'admin' ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-[#FAFAFC] text-[#8A86A3]'}`}>
+                    {u.role}
+                  </span>
+                  {u.isPremium && (
+                    <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#6C5CE7]/10 text-[#6C5CE7] border border-[#6C5CE7]/20">
+                      Premium
+                    </span>
+                  )}
+                  {isBannedActive && (
+                    <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-500 border border-red-100" title={`Reason: ${u.banReason || 'None'}`}>
+                      Banned
+                    </span>
+                  )}
+                </td>
+                <td className="px-6 py-4 text-xs font-semibold text-[#8A86A3]">{u.warnings?.length || 0} issued</td>
+                <td className="px-6 py-4 text-right space-x-2 whitespace-nowrap">
+                  <button
+                    onClick={() => handleTogglePremium(u._id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${u.isPremium ? 'bg-purple-50 text-purple-600 hover:bg-purple-100' : 'bg-[#FAFAFC] text-[#8A86A3] hover:bg-[#F4F3FE] hover:text-[#6C5CE7]'}`}
+                  >
+                    {u.isPremium ? 'Remove Premium' : 'Give Premium'}
+                  </button>
 
-                            <button
-                              onClick={() => setWarnModalUser(u)}
-                              className="px-3 py-1.5 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 rounded-lg text-xs font-semibold"
-                            >
-                              Warn
-                            </button>
+                  <button
+                    onClick={() => setWarnModalUser(u)}
+                    className="px-3 py-1.5 bg-yellow-50 text-yellow-600 hover:bg-yellow-100 rounded-lg text-xs font-semibold"
+                  >
+                    Warn
+                  </button>
 
-                            {isBannedActive ? (
-                              <button
-                                onClick={() => handleUnbanUser(u._id, u.name)}
-                                className="px-3 py-1.5 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg text-xs font-semibold"
-                              >
-                                Unban
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => setBanModalUser(u)}
-                                className="px-3 py-1.5 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg text-xs font-semibold"
-                              >
-                                Ban
-                              </button>
-                            )}
+                  {isBannedActive ? (
+                    <button
+                      onClick={() => handleUnbanUser(u._id, u.name)}
+                      className="px-3 py-1.5 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg text-xs font-semibold"
+                    >
+                      Unban
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setBanModalUser(u)}
+                      className="px-3 py-1.5 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg text-xs font-semibold"
+                    >
+                      Ban
+                    </button>
+                  )}
 
-                            <button
-                              onClick={() => handleDeleteUser(u._id, u.name)}
-                              className="px-3 py-1.5 bg-red-600 text-white hover:bg-red-700 rounded-lg text-xs font-semibold"
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                    {users.length === 0 && (
-                      <tr>
-                        <td colSpan="6" className="px-6 py-12 text-center text-sm text-[#8A86A3] italic">No users found.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+                  <button
+                    onClick={() => handleDeleteUser(u._id, u.name)}
+                    className="px-3 py-1.5 bg-red-600 text-white hover:bg-red-700 rounded-lg text-xs font-semibold"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+          {users.length === 0 && (
+            <tr>
+              <td colSpan="6" className="px-6 py-12 text-center text-sm text-[#8A86A3] italic">No users found.</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  )}
+</div>
 
           {/* Pagination */}
           {userPages > 1 && (
