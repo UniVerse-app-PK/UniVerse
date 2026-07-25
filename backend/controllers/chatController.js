@@ -12,15 +12,24 @@ exports.getOrCreateChat = async (req, res) => {
       return res.status(400).json({ success: false, message: "userId is required" });
     }
 
-    let chat = await Chat.findOne({
-      participants: { $all: [req.user._id, userId] },
-      ...(listingId && { listing: listingId }),
-    });
+    const mongoose = require("mongoose");
+    const participant2 = new mongoose.Types.ObjectId(userId);
+    const query = {
+      participants: { $all: [req.user._id, participant2] },
+    };
+
+    let chat = await Chat.findOne(query);
+
+    if (chat && listingId) {
+      // Update the existing chat's listing reference to the latest one clicked
+      chat.listing = new mongoose.Types.ObjectId(listingId);
+      await chat.save();
+    }
 
     if (!chat) {
       chat = await Chat.create({
-        participants: [req.user._id, userId],
-        listing: listingId || undefined,
+        participants: [req.user._id, participant2],
+        listing: listingId ? new mongoose.Types.ObjectId(listingId) : undefined,
       });
     }
 

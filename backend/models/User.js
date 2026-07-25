@@ -70,6 +70,25 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isBanned: {
+      type: Boolean,
+      default: false,
+    },
+    banExpires: {
+      type: Date,
+      default: null,
+    },
+    banReason: {
+      type: String,
+      default: "",
+    },
+    warnings: [
+      {
+        reason: { type: String, required: true },
+        date: { type: Date, default: Date.now },
+        issuedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      },
+    ],
   },
   {
     timestamps: true,

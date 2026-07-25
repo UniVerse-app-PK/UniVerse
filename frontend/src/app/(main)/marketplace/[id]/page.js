@@ -5,6 +5,7 @@ import { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchListingById, toggleSavedListing, addListingReview, deleteListing } from '@/lib/listings';
 import { getToken, getUser } from '@/lib/auth';
+import ReportModal from '@/components/ReportModal';
 
 export default function ItemDetailPage({ params }) {
   const resolvedParams = use(params);
@@ -18,6 +19,8 @@ export default function ItemDetailPage({ params }) {
   const [isSaved, setIsSaved] = useState(false);
   const [showCallModal, setShowCallModal] = useState(false);
   const [callingState, setCallingState] = useState('idle'); // idle | calling | connected
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
 
   // Review form states
   const [formRating, setFormRating] = useState(5);
@@ -42,6 +45,16 @@ export default function ItemDetailPage({ params }) {
     };
   }, [resolvedParams.id]);
 
+  useEffect(() => {
+    if (item) {
+      const user = getUser();
+      if (user && user.savedListings) {
+        const savedIds = user.savedListings.map(id => typeof id === 'object' ? (id._id || id.id) : id);
+        setIsSaved(savedIds.includes(item.id));
+      }
+    }
+  }, [item]);
+
   const toggleSave = async () => {
     if (!getToken()) {
       window.location.href = '/login';
@@ -50,6 +63,23 @@ export default function ItemDetailPage({ params }) {
     try {
       const res = await toggleSavedListing(item.id);
       setIsSaved(res.saved);
+
+      const user = getUser();
+      if (user) {
+        if (!user.savedListings) user.savedListings = [];
+        const savedIds = user.savedListings.map(id => typeof id === 'object' ? (id._id || id.id) : id);
+        if (res.saved) {
+          if (!savedIds.includes(item.id)) {
+            user.savedListings.push(item.id);
+          }
+        } else {
+          user.savedListings = user.savedListings.filter(id => {
+            const idStr = typeof id === 'object' ? (id._id || id.id) : id;
+            return idStr !== item.id;
+          });
+        }
+        localStorage.setItem('user', JSON.stringify(user));
+      }
     } catch (err) {
       setFormError(err.message);
     }
@@ -122,7 +152,8 @@ export default function ItemDetailPage({ params }) {
   const hasPhotos = item.photos && item.photos.length > 0;
   const sellerRating = item.sellerRating || { score: 0, count: 0 };
   const reviews = item.reviews || [];
-  const currentUserId = getUser()?.id;
+  const currentUser = getUser();
+  const currentUserId = currentUser?.id || currentUser?._id;
   const isOwner = !!(item.sellerId && currentUserId && String(item.sellerId) === String(currentUserId));
 
   return (
@@ -200,24 +231,46 @@ export default function ItemDetailPage({ params }) {
               )}
               <h1 className="text-3xl font-bold text-[#1E1B2E] mt-1">{item.name}</h1>
             </div>
-            <button
-              onClick={toggleSave}
-              className="w-12 h-12 rounded-2xl border border-[#EEEDFB] bg-white flex items-center justify-center text-[#6C5CE7] hover:bg-[#F4F3FE] active:scale-95 transition-all shadow-sm shrink-0"
-              title={isSaved ? 'Remove from saved' : 'Save item'}
-            >
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill={isSaved ? '#6C5CE7' : 'none'}
-                stroke="#6C5CE7"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={toggleSave}
+                className="w-12 h-12 rounded-2xl border border-[#EEEDFB] bg-white flex items-center justify-center text-[#6C5CE7] hover:bg-[#F4F3FE] active:scale-95 transition-all shadow-sm"
+                title={isSaved ? 'Remove from saved' : 'Save item'}
               >
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
-            </button>
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill={isSaved ? '#6C5CE7' : 'none'}
+                  stroke="#6C5CE7"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+              </button>
+
+              <div className="relative">
+                <button
+                  onClick={() => setMenuOpen((v) => !v)}
+                  className="w-12 h-12 rounded-2xl border border-[#EEEDFB] bg-white flex items-center justify-center text-[#8A86A3] hover:bg-[#F4F3FE] active:scale-95 transition-all shadow-sm"
+                  title="Listing options"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="12" cy="19" r="1.5" /></svg>
+                </button>
+                {menuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-[#EEEDFB] rounded-xl shadow-lg py-1.5 z-50">
+                    <button
+                      onClick={() => { setReportModalOpen(true); setMenuOpen(false); }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-orange-500 hover:bg-orange-50"
+                    >
+                      Report Listing
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center gap-4 bg-[#F4F3FE] p-4 rounded-2xl">
@@ -412,6 +465,14 @@ export default function ItemDetailPage({ params }) {
             </button>
           </div>
         </div>
+      )}
+      {reportModalOpen && (
+        <ReportModal
+          targetType="listing"
+          targetId={item.id}
+          targetName={item.name}
+          onClose={() => setReportModalOpen(false)}
+        />
       )}
     </div>
   );

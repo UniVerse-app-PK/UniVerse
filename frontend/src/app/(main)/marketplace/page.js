@@ -10,6 +10,7 @@ function MarketplaceContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category') || 'All';
   const [active, setActive] = useState(initialCategory);
+  const searchQuery = searchParams.get('search') || '';
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -18,7 +19,7 @@ function MarketplaceContent() {
     let cancelled = false;
     setLoading(true);
     setError('');
-    fetchListings({ category: active })
+    fetchListings({ category: active, search: searchQuery })
       .then((data) => {
         if (!cancelled) setListings(data);
       })
@@ -31,7 +32,7 @@ function MarketplaceContent() {
     return () => {
       cancelled = true;
     };
-  }, [active]);
+  }, [active, searchQuery]);
 
   return (
     <div className="p-8">

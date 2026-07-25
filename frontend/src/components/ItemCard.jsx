@@ -1,15 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toggleSavedListing } from '@/lib/listings';
-import { getToken } from '@/lib/auth';
+import { getToken, getUser } from '@/lib/auth';
 
 export default function ItemCard({ item }) {
   const router = useRouter();
   const [isSaved, setIsSaved] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const user = getUser();
+    if (user && user.savedListings) {
+      const savedIds = user.savedListings.map(id => typeof id === 'object' ? (id._id || id.id) : id);
+      setIsSaved(savedIds.includes(item.id));
+    }
+  }, [item.id]);
 
   const toggleSave = async (e) => {
     e.preventDefault();
@@ -25,6 +33,23 @@ export default function ItemCard({ item }) {
     try {
       const res = await toggleSavedListing(item.id);
       setIsSaved(res.saved);
+      
+      const user = getUser();
+      if (user) {
+        if (!user.savedListings) user.savedListings = [];
+        const savedIds = user.savedListings.map(id => typeof id === 'object' ? (id._id || id.id) : id);
+        if (res.saved) {
+          if (!savedIds.includes(item.id)) {
+            user.savedListings.push(item.id);
+          }
+        } else {
+          user.savedListings = user.savedListings.filter(id => {
+            const idStr = typeof id === 'object' ? (id._id || id.id) : id;
+            return idStr !== item.id;
+          });
+        }
+        localStorage.setItem('user', JSON.stringify(user));
+      }
     } catch (err) {
       console.error(err);
     } finally {

@@ -30,6 +30,27 @@ const protect = async (req, res, next) => {
       });
     }
 
+    // Ban check
+    if (user.isBanned) {
+      if (user.banExpires && new Date(user.banExpires) < new Date()) {
+        // Temp ban expired, unban user
+        user.isBanned = false;
+        user.banExpires = null;
+        user.banReason = "";
+        await user.save();
+      } else {
+        return res.status(403).json({
+          success: false,
+          message: user.banReason 
+            ? `Your account has been banned: ${user.banReason}` 
+            : "Your account has been banned.",
+          isBanned: true,
+          banReason: user.banReason,
+          banExpires: user.banExpires,
+        });
+      }
+    }
+
     req.user = user;
     next();
   } catch (error) {
@@ -40,4 +61,15 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+const adminOnly = (req, res, next) => {
+  if (req.user && req.user.role === "admin") {
+    next();
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: "Access denied, admin privileges required",
+    });
+  }
+};
+
+module.exports = { protect, adminOnly };

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import EventCard from '@/components/EventCard';
-import { getToken, getUser } from '@/lib/auth';
+import { getToken, getUser, isAdmin } from '@/lib/auth';
 import { fetchEvents, deleteEvent } from '@/lib/events';
 import EventForm from '@/components/EventForm';
 
@@ -18,9 +18,11 @@ export default function EventsPage() {
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [me, setMe] = useState(null);
+  const [isAdminUser, setIsAdminUser] = useState(false);
 
   useEffect(() => {
     setMe(getUser());
+    setIsAdminUser(isAdmin());
   }, []);
 
   useEffect(() => {
@@ -56,9 +58,11 @@ export default function EventsPage() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-5">
         <h1 className="text-2xl font-semibold">Events</h1>
-        <button onClick={handleAddEventClick} className="px-4 py-2 rounded-xl bg-[#6C5CE7] text-white text-sm font-medium">
-          {showForm ? 'Cancel' : '+ Add event'}
-        </button>
+        {isAdminUser && (
+          <button onClick={handleAddEventClick} className="px-4 py-2 rounded-xl bg-[#6C5CE7] text-white text-sm font-medium">
+            {showForm ? 'Cancel' : '+ Add event'}
+          </button>
+        )}
       </div>
 
       {showForm && (
@@ -94,7 +98,7 @@ export default function EventsPage() {
       {!loading && (
         <div className="space-y-3 max-w-2xl">
           {events.map((ev) => (
-            <EventCard key={ev.id} event={ev} onDelete={ev.createdBy === me?.id ? () => handleDelete(ev.id) : null} />
+            <EventCard key={ev.id} event={ev} onDelete={isAdminUser ? () => handleDelete(ev.id) : null} />
           ))}
           {events.length === 0 && <p className="text-sm text-[#8A86A3]">No events in this category yet.</p>}
         </div>

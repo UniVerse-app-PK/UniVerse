@@ -154,6 +154,7 @@ exports.verifyUser = async (req, res) => {
         university: user.university,
         isPremium: user.isPremium,
         verifiedSeller: user.verifiedSeller,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -248,6 +249,27 @@ exports.loginUser = async (req, res) => {
       });
     }
 
+    // Ban check
+    if (user.isBanned) {
+      if (user.banExpires && new Date(user.banExpires) < new Date()) {
+        // Temp ban expired, unban user
+        user.isBanned = false;
+        user.banExpires = null;
+        user.banReason = "";
+        await user.save();
+      } else {
+        return res.status(403).json({
+          success: false,
+          message: user.banReason
+            ? `Your account has been banned: ${user.banReason}`
+            : "Your account has been banned.",
+          isBanned: true,
+          banReason: user.banReason,
+          banExpires: user.banExpires,
+        });
+      }
+    }
+
     const token = generateToken(user._id);
 
     res.status(200).json({
@@ -261,6 +283,7 @@ exports.loginUser = async (req, res) => {
         avatar: user.avatar,
         isPremium: user.isPremium,
         verifiedSeller: user.verifiedSeller,
+        role: user.role,
       },
     });
   } catch (error) {

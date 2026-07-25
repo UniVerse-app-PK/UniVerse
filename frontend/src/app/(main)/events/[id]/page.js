@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchEventById, deleteEvent } from '@/lib/events';
-import { getUser } from '@/lib/auth';
+import { getUser, isAdmin } from '@/lib/auth';
+import ReportModal from '@/components/ReportModal';
 
 export default function EventDetailPage({ params }) {
   const resolvedParams = use(params);
@@ -13,6 +14,13 @@ export default function EventDetailPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [deleting, setDeleting] = useState(false);
+  const [isAdminUser, setIsAdminUser] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+
+  useEffect(() => {
+    setIsAdminUser(isAdmin());
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,13 +69,35 @@ export default function EventDetailPage({ params }) {
 
   return (
     <div className="p-6 max-w-5xl mx-auto pb-16">
-      <Link href="/events" className="inline-flex items-center gap-2 text-sm text-[#8A86A3] font-medium mb-6 hover:text-[#6C5CE7] transition-colors">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="19" y1="12" x2="5" y2="12"></line>
-          <polyline points="12 19 5 12 12 5"></polyline>
-        </svg>
-        Back to events
-      </Link>
+      <div className="flex justify-between items-center mb-6">
+        <Link href="/events" className="inline-flex items-center gap-2 text-sm text-[#8A86A3] font-medium hover:text-[#6C5CE7] transition-colors">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back to events
+        </Link>
+
+        <div className="relative">
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-[#8A86A3] hover:bg-[#F4F3FE] border border-[#EEEDFB] bg-white"
+            title="Options"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5" /><circle cx="12" cy="12" r="1.5" /><circle cx="12" cy="19" r="1.5" /></svg>
+          </button>
+          {menuOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-[#EEEDFB] rounded-xl shadow-lg py-1.5 z-50">
+              <button
+                onClick={() => { setReportModalOpen(true); setMenuOpen(false); }}
+                className="w-full text-left px-4 py-2.5 text-sm text-orange-500 hover:bg-orange-50"
+              >
+                Report Event
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
         <div className="md:col-span-6 space-y-4">
@@ -182,7 +212,7 @@ export default function EventDetailPage({ params }) {
             </div>
           </div>
 
-          {isOwner && (
+          {isAdminUser && (
             <div className="pt-4 border-t border-[#EEEDFB] flex gap-3">
               <Link
                 href={`/events/${event.id}/edit`}
@@ -201,6 +231,15 @@ export default function EventDetailPage({ params }) {
           )}
         </div>
       </div>
+
+      {reportModalOpen && (
+        <ReportModal
+          targetType="event"
+          targetId={event.id}
+          targetName={event.title}
+          onClose={() => setReportModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
