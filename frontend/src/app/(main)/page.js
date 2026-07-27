@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import ItemCard from '@/components/ItemCard';
 import { getUser } from '@/lib/auth';
 import { fetchListings } from '@/lib/listings';
+import BannerAd from '@/components/BannerAd';
 
 const categories = ['Books', 'Electronics', 'Furniture', 'Clothes', 'Cycles', 'Sports', 'Wearables', 'Instruments', 'Misc'];
 
@@ -101,23 +102,9 @@ export default function HomePage() {
             <p className="text-sm text-[#8A86A3]">No listings yet — be the first to post!</p>
           )}
             {/* Sponsored Advertisement */}
-<div className="mt-10 rounded-2xl border border-[#EEEDFB] bg-white shadow-sm overflow-hidden">
-  <div className="flex items-center justify-between px-6 py-3 bg-[#F8F7FF] border-b border-[#EEEDFB]">
-    <span className="text-xs font-medium text-[#6C5CE7] uppercase tracking-wide">
-      Sponsored
-    </span>
-
-    <button className="text-sm bg-[#6C5CE7] text-white px-4 py-2 rounded-full hover:bg-[#5849d6] transition">
-      Claim Offer
-    </button>
-  </div>
-
-  <img
-    src="/ads/foofoo.avif"
-    alt="Sponsored Advertisement"
-    className="w-full object-cover"
-  />
-</div>
+            <div className="mt-10">
+              <BannerAd orientation="horizontal" />
+            </div>
 
         </>
       )}

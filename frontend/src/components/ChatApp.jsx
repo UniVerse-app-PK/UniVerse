@@ -23,13 +23,28 @@ export default function ChatApp() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const pollRef = useRef(null);
-const buyMessageSentRef = useRef(false);
+  const buyMessageSentRef = useRef(false);
+
+  // Helper to deduplicate chats list by unique user or chat ID
+  const deduplicateChats = (chatList) => {
+    const seen = new Map();
+    for (const chat of chatList) {
+      // Key by otherUserId (or falling back to chat.id)
+      const key = chat.otherUserId || chat.id;
+      // If key already exists, prefer the one with a non-empty lastMessage
+      if (!seen.has(key) || (!seen.get(key).lastMessage && chat.lastMessage)) {
+        seen.set(key, chat);
+      }
+    }
+    return Array.from(seen.values());
+  };
 
   const loadChats = useCallback(async () => {
     try {
       const data = await fetchMyChats();
-      setChats(data);
-      return data;
+      const uniqueData = deduplicateChats(data);
+      setChats(uniqueData);
+      return uniqueData;
     } catch (err) {
       setError(err.message);
       return [];
@@ -46,30 +61,27 @@ const buyMessageSentRef = useRef(false);
     (async () => {
       setLoading(true);
       if (withUserId) {
-                try {
+        try {
           const chat = await startChat(withUserId, listingId || undefined);
+
+          if (buy && listingId && !buyMessageSentRef.current) {
+            buyMessageSentRef.current = true;
+
+            const listing = await fetchListingById(listingId);
+            const buyMessage = `I would like to buy this product : ${listing.name}, ${listing.condition}, ${listing.price}`;
+
+            const existingMessages = await fetchMessages(chat.id);
+            const alreadySent = existingMessages.some(
+              (msg) => msg.text === buyMessage
+            );
+
+            if (!alreadySent) {
+              await sendChatMessage(chat.id, buyMessage);
+            }
+          }
 
           await loadChats();
           setActiveId(chat.id);
-
-          if (buy && listingId && !buyMessageSentRef.current) {
-  buyMessageSentRef.current = true;
-
-  const listing = await fetchListingById(listingId);
-
-  const buyMessage = `I would like to buy this product : ${listing.name}, ${listing.condition}, ${listing.price}`;
-
-  const existingMessages = await fetchMessages(chat.id);
-
-  const alreadySent = existingMessages.some(
-    (msg) => msg.text === buyMessage
-  );
-
-  if (!alreadySent) {
-    await sendChatMessage(chat.id, buyMessage);
-    await loadChats();
-  }
-}
 
         } catch (err) {
           setError(err.message);

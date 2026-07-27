@@ -125,26 +125,13 @@ export default function ItemDetailPage({ params }) {
     }
   };
 
-  const handleBuyProduct = () => {
-  if (!getToken()) {
-    window.location.href = '/login';
-    return;
-  }
-
-  const message = encodeURIComponent(
-    `I would like to buy this product : ${item.name}, ${item.condition}, ${item.price}`
-  );
-
-  window.location.href = `/chats?with=${item.sellerId}&listing=${item.id}&message=${message}`;
-};
-
   const endCall = () => {
     setCallingState('idle');
     setShowCallModal(false);
   };
 
   if (loading) {
-    return <div className="p-8 text-sm text-[#8A86A3]">Loading item...</div>;
+    return <div className="p-8 text-sm text-[#8A86A3]">Loading item... ⏳</div>;
   }
 
   if (error || !item) {
@@ -160,14 +147,14 @@ export default function ItemDetailPage({ params }) {
   const sellerRating = item.sellerRating || { score: 0, count: 0 };
   const reviews = item.reviews || [];
   const currentUser = getUser();
-const currentUserId = currentUser?.id;
+  const currentUserId = currentUser?.id || currentUser?._id;
 
-const isOwner =
-  !!(item.sellerId &&
-  currentUserId &&
-  String(item.sellerId) === String(currentUserId));
+  const isOwner =
+    !!(item.sellerId &&
+    currentUserId &&
+    String(item.sellerId) === String(currentUserId));
 
-const isAdmin = currentUser?.role === 'admin';
+  const isAdmin = currentUser?.role === 'admin';
 
   return (
     <div className="p-6 max-w-6xl mx-auto pb-16">
@@ -328,53 +315,62 @@ const isAdmin = currentUser?.role === 'admin';
             </div>
           </div>
 
-         <div className="flex gap-4 pt-4 border-t border-[#EEEDFB]">
-  {(isOwner || isAdmin) ? (
-    <>
-      {isOwner && (
-        <Link
-          href={`/marketplace/${item.id}/edit`}
-          className="flex-1 py-3 px-6 rounded-2xl border-2 border-[#6C5CE7] text-[#6C5CE7] font-semibold text-center hover:bg-[#F4F3FE] active:scale-[0.98] transition-all text-sm"
-        >
-          Edit listing
-        </Link>
-      )}
+          <div className="flex flex-wrap gap-4 pt-4 border-t border-[#EEEDFB]">
+            {isOwner ? (
+              <>
+                <Link
+                  href={`/marketplace/${item.id}/edit`}
+                  className="flex-1 py-3 px-6 rounded-2xl border-2 border-[#6C5CE7] text-[#6C5CE7] font-semibold text-center hover:bg-[#F4F3FE] active:scale-[0.98] transition-all text-sm"
+                >
+                  Edit listing
+                </Link>
 
-      <button
-        onClick={handleDelete}
-        disabled={deleting}
-        className="flex-1 py-3 px-6 rounded-2xl bg-red-500 text-white font-semibold hover:bg-red-600 active:scale-[0.98] transition-all text-sm shadow-md shadow-red-500/20 disabled:opacity-60"
-      >
-        {deleting ? 'Deleting...' : 'Delete listing'}
-      </button>
-    </>
-  ) : (
-    <>
-      <Link
-  href={
-    item.sellerId
-      ? `/chats?with=${item.sellerId}&listing=${item.id}&buy=true`
-      : '/chats'
-  }
-  className="flex-1 py-3 px-6 rounded-2xl bg-[#6C5CE7] text-white font-semibold text-center hover:bg-[#5b4cc4] active:scale-[0.98] transition-all text-sm shadow-md shadow-[#6C5CE7]/20"
->
-  Buy Product
-</Link>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="flex-1 py-3 px-6 rounded-2xl bg-red-500 text-white font-semibold hover:bg-red-600 active:scale-[0.98] transition-all text-sm shadow-md shadow-red-500/20 disabled:opacity-60"
+                >
+                  {deleting ? 'Deleting...' : 'Delete listing'}
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href={
+                    item.sellerId
+                      ? `/chats?with=${item.sellerId}&listing=${item.id}&buy=true`
+                      : '/chats'
+                  }
+                  className="flex-1 py-3 px-6 rounded-2xl bg-[#6C5CE7] text-white font-semibold text-center hover:bg-[#5b4cc4] active:scale-[0.98] transition-all text-sm shadow-md shadow-[#6C5CE7]/20"
+                >
+                  Buy Product
+                </Link>
 
-<Link
-  href={
-    item.sellerId
-      ? `/chats?with=${item.sellerId}&listing=${item.id}`
-      : '/chats'
-  }
-  className="w-14 h-12 rounded-2xl border-2 border-[#6C5CE7] text-[#6C5CE7] flex items-center justify-center hover:bg-[#F4F3FE] active:scale-[0.98] transition-all"
-  title="Chat with Seller"
->
-  💬
-</Link>
-    </>
-  )}
-</div>
+                <Link
+                  href={
+                    item.sellerId
+                      ? `/chats?with=${item.sellerId}&listing=${item.id}`
+                      : '/chats'
+                  }
+                  className="w-25 h-12 rounded-2xl border-2 border-[#6C5CE7] text-[#6C5CE7] font-semibold flex items-center justify-center hover:bg-[#F4F3FE] active:scale-[0.98] transition-all"
+                  title="Chat with Seller"
+                >
+                  Chat
+                </Link>
+
+                {isAdmin && (
+                  <button
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="py-3 px-5 rounded-2xl bg-red-500 text-white font-semibold hover:bg-red-600 active:scale-[0.98] transition-all text-sm shadow-md shadow-red-500/20 disabled:opacity-60"
+                    title="Admin Delete"
+                  >
+                    {deleting ? 'Deleting...' : 'Delete'}
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -410,49 +406,57 @@ const isAdmin = currentUser?.role === 'admin';
           )}
         </div>
 
-        <div className="lg:col-span-5 bg-[#F8F7FD] p-6 rounded-3xl border border-[#EEEDFB]">
-          <h3 className="text-md font-bold text-[#1E1B2E] mb-1">Rate the Seller</h3>
-          <p className="text-xs text-[#8A86A3] mb-4">Share your transaction experience with other campus users.</p>
+        {!isOwner ? (
+          <div className="lg:col-span-5 bg-[#F8F7FD] p-6 rounded-3xl border border-[#EEEDFB]">
+            <h3 className="text-md font-bold text-[#1E1B2E] mb-1">Rate the Seller</h3>
+            <p className="text-xs text-[#8A86A3] mb-4">Share your transaction experience with other campus users.</p>
 
-          <form onSubmit={handleAddReview} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-[#8A86A3] uppercase tracking-wider mb-1.5">Rating</label>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => setFormRating(star)}
-                    className="text-2xl transition-transform hover:scale-110"
-                  >
-                    <span className={star <= formRating ? 'text-[#6C5CE7]' : 'text-[#CECBF6]'}>★</span>
-                  </button>
-                ))}
+            <form onSubmit={handleAddReview} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-[#8A86A3] uppercase tracking-wider mb-1.5">Rating</label>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setFormRating(star)}
+                      className="text-2xl transition-transform hover:scale-110"
+                    >
+                      <span className={star <= formRating ? 'text-[#6C5CE7]' : 'text-[#CECBF6]'}>★</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-[#8A86A3] uppercase tracking-wider mb-1.5">Review Comment</label>
-              <textarea
-                rows="3"
-                value={formComment}
-                onChange={(e) => setFormComment(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-[#EEEDFB] bg-white text-sm focus:outline-none focus:border-[#6C5CE7] resize-none"
-                placeholder="Describe your experience..."
-              />
-            </div>
+              <div>
+                <label className="block text-xs font-semibold text-[#8A86A3] uppercase tracking-wider mb-1.5">Review Comment</label>
+                <textarea
+                  rows="3"
+                  value={formComment}
+                  onChange={(e) => setFormComment(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#EEEDFB] bg-white text-sm focus:outline-none focus:border-[#6C5CE7] resize-none"
+                  placeholder="Describe your experience..."
+                />
+              </div>
 
-            {formError && <p className="text-xs text-red-500 font-semibold">{formError}</p>}
-            {formSuccess && <p className="text-xs text-green-600 font-semibold">Thank you! Your review has been added.</p>}
+              {formError && <p className="text-xs text-red-500 font-semibold">{formError}</p>}
+              {formSuccess && <p className="text-xs text-green-600 font-semibold">Thank you! Your review has been added.</p>}
 
-            <button
-              type="submit"
-              className="w-full py-2.5 px-4 rounded-xl bg-[#6C5CE7] text-white font-semibold hover:bg-[#5b4cc4] active:scale-[0.98] transition-all text-sm"
-            >
-              Submit Review
-            </button>
-          </form>
-        </div>
+              <button
+                type="submit"
+                className="w-full py-2.5 px-4 rounded-xl bg-[#6C5CE7] text-white font-semibold hover:bg-[#5b4cc4] active:scale-[0.98] transition-all text-sm"
+              >
+                Submit Review
+              </button>
+            </form>
+          </div>
+        ) : (
+          <div className="lg:col-span-5 bg-[#F8F7FD] p-6 rounded-3xl border border-[#EEEDFB] flex items-center justify-center">
+            <p className="text-xs text-[#8A86A3] text-center italic">
+              You cannot leave a review on your own listing. 🚫
+            </p>
+          </div>
+        )}
       </div>
 
       {showCallModal && (

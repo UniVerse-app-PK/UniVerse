@@ -9,6 +9,7 @@ import {
   markNotificationRead,
   markAllNotificationsRead
 } from '@/lib/notifications';
+import BannerAd from '@/components/BannerAd';
 
 export default function NotificationsPage() {
   const router = useRouter();
@@ -142,43 +143,7 @@ export default function NotificationsPage() {
         </div>
 
         {/* Advertisement Sidebar */}
-<div className="w-64 shrink-0">
-
-  <div className="sticky top-6 overflow-hidden rounded-2xl border border-[#EEEDFB] bg-white shadow-sm">
-
-    <div className="flex items-center justify-between px-4 py-3 bg-[#F8F7FF] border-b border-[#EEEDFB]">
-
-      <span className="text-xs font-semibold uppercase tracking-wide text-[#6C5CE7]">
-        Sponsored
-      </span>
-
-      <button className="rounded-full bg-[#6C5CE7] px-3 py-1 text-xs font-medium text-white hover:bg-[#5849d6]">
-        Claim
-      </button>
-
-    </div>
-
-    <img
-      src="/ads/foofoo.avif"
-      alt="Sponsored Advertisement"
-      className="w-full h-auto"
-    />
-
-    <div className="p-4">
-
-      <h3 className="font-semibold text-[#1E1B2E]">
-        Student Exclusive Deals
-      </h3>
-
-      <p className="mt-2 text-sm text-[#6B6880]">
-        Save on food, shopping, and services with exclusive student offers through UniVerse partners.
-      </p>
-
-    </div>
-
-  </div>
-
-</div>
+        <BannerAd orientation="vertical" />
 
       </div>
 
