@@ -125,11 +125,18 @@ export default function ItemDetailPage({ params }) {
     }
   };
 
-  const handleCall = () => {
-    setShowCallModal(true);
-    setCallingState('calling');
-    setTimeout(() => setCallingState('connected'), 1500);
-  };
+  const handleBuyProduct = () => {
+  if (!getToken()) {
+    window.location.href = '/login';
+    return;
+  }
+
+  const message = encodeURIComponent(
+    `I would like to buy this product : ${item.name}, ${item.condition}, ${item.price}`
+  );
+
+  window.location.href = `/chats?with=${item.sellerId}&listing=${item.id}&message=${message}`;
+};
 
   const endCall = () => {
     setCallingState('idle');
@@ -153,8 +160,14 @@ export default function ItemDetailPage({ params }) {
   const sellerRating = item.sellerRating || { score: 0, count: 0 };
   const reviews = item.reviews || [];
   const currentUser = getUser();
-  const currentUserId = currentUser?.id || currentUser?._id;
-  const isOwner = !!(item.sellerId && currentUserId && String(item.sellerId) === String(currentUserId));
+const currentUserId = currentUser?.id;
+
+const isOwner =
+  !!(item.sellerId &&
+  currentUserId &&
+  String(item.sellerId) === String(currentUserId));
+
+const isAdmin = currentUser?.role === 'admin';
 
   return (
     <div className="p-6 max-w-6xl mx-auto pb-16">
@@ -315,40 +328,53 @@ export default function ItemDetailPage({ params }) {
             </div>
           </div>
 
-          <div className="flex gap-4 pt-4 border-t border-[#EEEDFB]">
-            {isOwner ? (
-              <>
-                <Link
-                  href={`/marketplace/${item.id}/edit`}
-                  className="flex-1 py-3 px-6 rounded-2xl border-2 border-[#6C5CE7] text-[#6C5CE7] font-semibold text-center hover:bg-[#F4F3FE] active:scale-[0.98] transition-all text-sm"
-                >
-                  Edit listing
-                </Link>
-                <button
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className="flex-1 py-3 px-6 rounded-2xl bg-red-500 text-white font-semibold hover:bg-red-600 active:scale-[0.98] transition-all text-sm shadow-md shadow-red-500/20 disabled:opacity-60"
-                >
-                  {deleting ? 'Deleting...' : 'Delete listing'}
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href={item.sellerId ? `/chats?with=${item.sellerId}&listing=${item.id}` : '/chats'}
-                  className="flex-1 py-3 px-6 rounded-2xl border-2 border-[#6C5CE7] text-[#6C5CE7] font-semibold text-center hover:bg-[#F4F3FE] active:scale-[0.98] transition-all text-sm"
-                >
-                  Chat with Seller
-                </Link>
-                <button
-                  onClick={handleCall}
-                  className="flex-1 py-3 px-6 rounded-2xl bg-[#6C5CE7] text-white font-semibold hover:bg-[#5b4cc4] active:scale-[0.98] transition-all text-sm shadow-md shadow-[#6C5CE7]/20"
-                >
-                  Call Seller
-                </button>
-              </>
-            )}
-          </div>
+         <div className="flex gap-4 pt-4 border-t border-[#EEEDFB]">
+  {(isOwner || isAdmin) ? (
+    <>
+      {isOwner && (
+        <Link
+          href={`/marketplace/${item.id}/edit`}
+          className="flex-1 py-3 px-6 rounded-2xl border-2 border-[#6C5CE7] text-[#6C5CE7] font-semibold text-center hover:bg-[#F4F3FE] active:scale-[0.98] transition-all text-sm"
+        >
+          Edit listing
+        </Link>
+      )}
+
+      <button
+        onClick={handleDelete}
+        disabled={deleting}
+        className="flex-1 py-3 px-6 rounded-2xl bg-red-500 text-white font-semibold hover:bg-red-600 active:scale-[0.98] transition-all text-sm shadow-md shadow-red-500/20 disabled:opacity-60"
+      >
+        {deleting ? 'Deleting...' : 'Delete listing'}
+      </button>
+    </>
+  ) : (
+    <>
+      <Link
+  href={
+    item.sellerId
+      ? `/chats?with=${item.sellerId}&listing=${item.id}&buy=true`
+      : '/chats'
+  }
+  className="flex-1 py-3 px-6 rounded-2xl bg-[#6C5CE7] text-white font-semibold text-center hover:bg-[#5b4cc4] active:scale-[0.98] transition-all text-sm shadow-md shadow-[#6C5CE7]/20"
+>
+  Buy Product
+</Link>
+
+<Link
+  href={
+    item.sellerId
+      ? `/chats?with=${item.sellerId}&listing=${item.id}`
+      : '/chats'
+  }
+  className="w-14 h-12 rounded-2xl border-2 border-[#6C5CE7] text-[#6C5CE7] flex items-center justify-center hover:bg-[#F4F3FE] active:scale-[0.98] transition-all"
+  title="Chat with Seller"
+>
+  💬
+</Link>
+    </>
+  )}
+</div>
         </div>
       </div>
 

@@ -143,55 +143,126 @@ export default function PremiumPage() {
   }
 
   return (
-    <div className="p-8 max-w-xl">
-      <div className="rounded-3xl bg-gradient-to-br from-[#6C5CE7] to-[#8B7CF6] text-white p-6 mb-6">
-        <h1 className="text-xl font-bold mb-1">UniVerse Premium</h1>
-        <p className="text-sm text-white/80 mb-4">Unlock unlimited listings, featured/urgent boosts, and a verified badge.</p>
-        {user?.isPremium ? (
-          <div className="flex items-center gap-2 text-sm font-medium bg-white/15 rounded-xl px-4 py-2.5 w-fit">
-            ✓ Subscribed
-          </div>
-        ) : (
-          <button
-            onClick={handleSubscribe}
-            disabled={busy}
-            className="px-5 py-2.5 rounded-xl bg-white text-[#6C5CE7] text-sm font-semibold hover:bg-white/90 disabled:opacity-60 cursor-pointer"
-          >
-            Subscribe Now
-          </button>
-        )}
+    <div className="p-8 max-w-6xl mx-auto">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#5B3DF5] via-[#6C5CE7] to-[#A78BFA] text-white p-10 mb-8 shadow-2xl">
+  <div className="absolute -top-20 -right-20 w-56 h-56 rounded-full bg-white/10 blur-3xl"></div>
+
+<div className="absolute -bottom-20 -left-20 w-48 h-48 rounded-full bg-pink-300/20 blur-3xl"></div>
+
+<div className="relative z-10">
+
+  <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur px-4 py-2 rounded-full text-xs font-semibold mb-5">
+    👑 PREMIUM MEMBERSHIP
+  </div>
+
+  <h1 className="text-4xl font-extrabold mb-3">
+    UniVerse Premium
+  </h1>
+
+  <p className="text-white/90 text-base max-w-md mb-6">
+    Unlock unlimited listings, verified seller status, featured products,
+    urgent badges, and exclusive marketplace benefits.
+  </p>
+
+  <div className="flex flex-wrap gap-3 mb-7">
+
+    <div className="bg-white/15 backdrop-blur px-4 py-2 rounded-xl text-sm">
+      ⭐ Featured Listings
+    </div>
+
+    <div className="bg-white/15 backdrop-blur px-4 py-2 rounded-xl text-sm">
+      ✔ Verified Seller
+    </div>
+
+    <div className="bg-white/15 backdrop-blur px-4 py-2 rounded-xl text-sm">
+      🚀 Unlimited Posts
+    </div>
+
+  </div>
+
+  {user?.isPremium ? (
+    <div className="inline-flex items-center gap-2 bg-emerald-500 px-6 py-3 rounded-xl font-semibold shadow-lg">
+      ✓ Premium Active
+    </div>
+  ) : (
+    <button
+      onClick={handleSubscribe}
+      disabled={busy}
+      className="px-7 py-3 rounded-xl bg-white text-[#6C5CE7] font-bold hover:scale-105 transition shadow-xl disabled:opacity-60"
+    >
+      {busy ? 'Subscribing...' : 'Upgrade to Premium'}
+    </button>
+  )}
+
+</div>
+</div>
+
+{error && <p className="text-sm text-red-500 mb-4">{error}</p>}
+
+<h2 className="text-sm font-semibold text-[#8A86A3] uppercase tracking-wide mb-3">
+  Included with Premium
+</h2>
+<div className="space-y-2 mb-6">
+  {activePerks.map((perk) => (
+    <div
+      key={perk.title}
+      className="rounded-2xl border border-[#EEEDFB] bg-white shadow-sm hover:shadow-lg transition-all p-5 flex items-start gap-4"
+    >
+      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6C5CE7] to-[#A78BFA] text-white flex items-center justify-center font-bold">
+        ✓
       </div>
 
-      {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
+      <div>
+        <p className="font-semibold text-[#1E1B2E]">
+          {perk.title}
+        </p>
 
-      <h2 className="text-sm font-semibold text-[#8A86A3] uppercase tracking-wide mb-3">Included with Premium</h2>
-      <div className="space-y-2 mb-6">
-        {activePerks.map((perk) => (
-          <div key={perk.title} className="rounded-xl border border-[#EEEDFB] p-4 flex items-start gap-3">
-            <span className={`mt-0.5 text-sm ${user?.isPremium ? 'text-[#0F6E56]' : 'text-[#CECBF6]'}`}>{user?.isPremium ? '✓' : '○'}</span>
-            <div>
-              <p className="text-sm font-medium">{perk.title}</p>
-              <p className="text-xs text-[#8A86A3] mt-0.5">{perk.desc}</p>
-            </div>
-          </div>
-        ))}
+        <p className="text-sm text-[#8A86A3] mt-1">
+          {perk.desc}
+        </p>
       </div>
+    </div>
+  ))}
+</div>
 
-      <h2 className="text-sm font-semibold text-[#8A86A3] uppercase tracking-wide mb-3">Coming soon</h2>
-      <div className="space-y-2 mb-6">
-        {comingSoonPerks.map((perk) => (
-          <div key={perk.title} className="rounded-xl border border-[#EEEDFB] p-4 opacity-60">
-            <p className="text-sm font-medium">{perk.title}</p>
-            <p className="text-xs text-[#8A86A3] mt-0.5">{perk.desc}</p>
-          </div>
-        ))}
+<h2 className="text-sm font-semibold text-[#8A86A3] uppercase tracking-wide mb-3">
+  Coming Soon
+</h2>
+
+<div className="space-y-2 mb-8">
+  {comingSoonPerks.map((perk) => (
+    <div
+      key={perk.title}
+      className="rounded-2xl border border-dashed border-[#D8D4FA] bg-[#FAF9FF] p-5 opacity-80"
+    >
+      <div className="flex justify-between items-center">
+        <div>
+          <p className="font-semibold text-[#1E1B2E]">
+            {perk.title}
+          </p>
+
+          <p className="text-sm text-[#8A86A3] mt-1">
+            {perk.desc}
+          </p>
+        </div>
+
+        <span className="text-xs bg-[#6C5CE7] text-white px-3 py-1 rounded-full">
+          Soon
+        </span>
       </div>
+    </div>
+  ))}
+</div>
 
-      {user?.isPremium && (
-        <button onClick={handleUnsubscribe} disabled={busy} className="text-sm text-red-500 font-medium disabled:opacity-60 cursor-pointer">
-          Cancel Premium
-        </button>
-      )}
+{user?.isPremium && (
+  <button
+    onClick={handleUnsubscribe}
+    disabled={busy}
+    className="w-full py-3 rounded-2xl bg-red-500 text-white font-semibold hover:bg-red-600 transition disabled:opacity-60"
+  >
+    {busy ? 'Cancelling...' : 'Cancel Premium'}
+  </button>
+)}
     </div>
   );
 }

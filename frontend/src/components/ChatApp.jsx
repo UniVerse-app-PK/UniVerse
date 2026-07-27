@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { fetchMyChats, fetchMessages, sendChatMessage, startChat, deleteChat, clearChat } from '@/lib/chats';
+import { fetchListingById } from '@/lib/listings';
 import { getToken } from '@/lib/auth';
 import ReportModal from '@/components/ReportModal';
 
@@ -11,6 +12,7 @@ export default function ChatApp() {
   const searchParams = useSearchParams();
   const withUserId = searchParams.get('with');
   const listingId = searchParams.get('listing');
+  const buy = searchParams.get('buy');
 
   const [chats, setChats] = useState([]);
   const [activeId, setActiveId] = useState(null);
@@ -21,6 +23,7 @@ export default function ChatApp() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const pollRef = useRef(null);
+const buyMessageSentRef = useRef(false);
 
   const loadChats = useCallback(async () => {
     try {
@@ -43,10 +46,31 @@ export default function ChatApp() {
     (async () => {
       setLoading(true);
       if (withUserId) {
-        try {
+                try {
           const chat = await startChat(withUserId, listingId || undefined);
+
           await loadChats();
           setActiveId(chat.id);
+
+          if (buy && listingId && !buyMessageSentRef.current) {
+  buyMessageSentRef.current = true;
+
+  const listing = await fetchListingById(listingId);
+
+  const buyMessage = `I would like to buy this product : ${listing.name}, ${listing.condition}, ${listing.price}`;
+
+  const existingMessages = await fetchMessages(chat.id);
+
+  const alreadySent = existingMessages.some(
+    (msg) => msg.text === buyMessage
+  );
+
+  if (!alreadySent) {
+    await sendChatMessage(chat.id, buyMessage);
+    await loadChats();
+  }
+}
+
         } catch (err) {
           setError(err.message);
         }

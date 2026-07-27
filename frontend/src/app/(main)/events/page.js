@@ -94,15 +94,62 @@ export default function EventsPage() {
 
       {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
       {loading && <p className="text-sm text-[#8A86A3]">Loading events...</p>}
+    
 
       {!loading && (
-        <div className="space-y-3 max-w-2xl">
-          {events.map((ev) => (
-            <EventCard key={ev.id} event={ev} onDelete={isAdminUser ? () => handleDelete(ev.id) : null} />
-          ))}
-          {events.length === 0 && <p className="text-sm text-[#8A86A3]">No events in this category yet.</p>}
-        </div>
+  <div className="flex gap-6 items-start">
+
+    {/* Events */}
+    <div className="flex-1 space-y-3 max-w-2xl">
+      {events.map((ev) => (
+        <EventCard
+          key={ev.id}
+          event={ev}
+          onDelete={ev.createdBy === me?.id ? () => handleDelete(ev.id) : null}
+        />
+      ))}
+
+      {events.length === 0 && (
+        <p className="text-sm text-[#8A86A3]">
+          No events in this category yet.
+        </p>
       )}
+    </div>
+
+    {/* Right Sidebar Advertisement */}
+<div className="w-64 shrink-0">
+  <div className="sticky top-6 overflow-hidden rounded-2xl border border-[#EEEDFB] bg-white shadow-sm">
+
+    <div className="flex items-center justify-between px-4 py-3 bg-[#F8F7FF] border-b border-[#EEEDFB]">
+      <span className="text-xs font-semibold uppercase tracking-wide text-[#6C5CE7]">
+        Sponsored
+      </span>
+
+      <button className="rounded-full bg-[#6C5CE7] px-3 py-1 text-xs font-medium text-white hover:bg-[#5849d6]">
+        Claim
+      </button>
+    </div>
+
+    <img
+      src="/ads/foofoo.avif"
+      alt="Sponsored Advertisement"
+      className="w-full h-auto"
+    />
+
+    <div className="p-4">
+      <h3 className="font-semibold text-[#1E1B2E]">
+        Student Exclusive Deals
+      </h3>
+
+      <p className="mt-2 text-sm text-[#6B6880]">
+        Discover exclusive discounts and offers from businesses partnered with UniVerse.
+      </p>
+    </div>
+
+  </div>
+</div>
+  </div>
+)}
     </div>
   );
 }
