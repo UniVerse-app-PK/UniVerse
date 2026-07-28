@@ -84,13 +84,24 @@ exports.togglePremium = async (req, res) => {
     }
 
     user.isPremium = !user.isPremium;
+
+    if (user.isPremium) {
+      // Set 30-day expiry
+      const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      user.premiumExpiresAt = expiresAt;
+      user.premiumWarned = false; // reset so warning fires again for new cycle
+    } else {
+      user.premiumExpiresAt = null;
+      user.premiumWarned = false;
+    }
+
     await user.save();
 
     // Notify user
     await Notification.create({
       user: user._id,
       text: user.isPremium
-        ? "Your account has been upgraded to Premium! Enjoy the perks."
+        ? `Your account has been upgraded to Premium! Enjoy the perks. Your subscription is active for 30 days.`
         : "Your Premium status has been deactivated.",
       type: "system",
     });
