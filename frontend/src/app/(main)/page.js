@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import ItemCard from '@/components/ItemCard';
 import { getUser } from '@/lib/auth';
 import { fetchListings } from '@/lib/listings';
+import BannerAd from '@/components/BannerAd';
 
 const categories = ['Books', 'Electronics', 'Furniture', 'Clothes', 'Cycles', 'Sports', 'Wearables', 'Instruments', 'Misc'];
 
@@ -39,11 +40,25 @@ export default function HomePage() {
 
   return (
     <div className="p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Hello, {user?.name || 'there'} 👋</h1>
-        <p className="text-[#8A86A3] text-sm mt-1">Have a nice day</p>
-      </div>
+      <div className="flex items-start justify-between mb-6">
+  <div>
+    <h1 className="text-2xl font-semibold">
+      Hello, {user?.name || 'there'} 👋
+    </h1>
+    <p className="text-[#8A86A3] text-sm mt-1">
+      Have a nice day
+    </p>
+  </div>
 
+  {!user && (
+    <Link
+      href="/login"
+      className="rounded-xl bg-[#6C5CE7] px-5 py-2 text-sm font-medium text-white hover:bg-[#5849d6] transition"
+    >
+      Sign In
+    </Link>
+  )}
+</div>
       <div className="flex gap-3 mb-8 flex-wrap">
         {categories.map((cat, i) => (
           <Link
@@ -86,6 +101,11 @@ export default function HomePage() {
           ) : (
             <p className="text-sm text-[#8A86A3]">No listings yet — be the first to post!</p>
           )}
+            {/* Sponsored Advertisement */}
+            <div className="mt-10">
+              <BannerAd orientation="horizontal" />
+            </div>
+
         </>
       )}
     </div>

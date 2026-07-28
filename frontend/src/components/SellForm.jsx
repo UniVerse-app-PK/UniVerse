@@ -276,7 +276,7 @@ export default function SellForm({ editId, initialData }) {
             </>
           ) : (
             <Link
-              href="/settings/premium"
+              href="/premium"
               className="flex items-center gap-3 rounded-2xl border border-dashed border-[#CECBF6] p-4 hover:bg-[#F4F3FE]"
             >
               <span className="text-lg">🔒</span>

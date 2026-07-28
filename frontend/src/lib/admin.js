@@ -45,3 +45,24 @@ export async function reviewReport(reportId, status, adminNote = '') {
 export async function sendCustomNotification({ recipients, text, type = 'system' }) {
   return api.post('/admin/notifications', { recipients, text, type }, { auth: true });
 }
+
+// Banner Ads
+export async function fetchBannerAds() {
+  return api.get('/banner-ads', { auth: true });
+}
+
+export async function fetchActiveBannerAd(orientation = 'horizontal') {
+  return api.get(`/banner-ads/active?orientation=${orientation}`);
+}
+
+export async function createBannerAd(data) {
+  return api.post('/banner-ads', data, { auth: true });
+}
+
+export async function updateBannerAd(id, data) {
+  return api.put(`/banner-ads/${id}`, data, { auth: true });
+}
+
+export async function deleteBannerAd(id) {
+  return api.delete(`/banner-ads/${id}`, { auth: true });
+}

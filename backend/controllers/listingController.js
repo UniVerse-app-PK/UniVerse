@@ -200,7 +200,7 @@ exports.updateListing = async (req, res) => {
   }
 };
 
-// @desc  Delete a listing (owner only)
+// @desc Delete a listing (owner or admin)
 // @route DELETE /api/listings/:id
 exports.deleteListing = async (req, res) => {
   try {
@@ -210,7 +210,11 @@ exports.deleteListing = async (req, res) => {
       return res.status(404).json({ success: false, message: "Listing not found" });
     }
 
-    if (listing.seller.toString() !== req.user._id.toString()) {
+    // Check if user is the listing owner OR has an admin role
+    const isOwner = listing.seller.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === "admin";
+
+    if (!isOwner && !isAdmin) {
       return res.status(403).json({
         success: false,
         message: "Not authorized to delete this listing",

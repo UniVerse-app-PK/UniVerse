@@ -6,6 +6,7 @@ import EventCard from '@/components/EventCard';
 import { getToken, getUser, isAdmin } from '@/lib/auth';
 import { fetchEvents, deleteEvent } from '@/lib/events';
 import EventForm from '@/components/EventForm';
+import BannerAd from '@/components/BannerAd';
 
 const tabs = ['All', 'Internships', 'Research', 'Courses', 'Societies'];
 const formCategories = ['Internships', 'Research', 'Courses', 'Societies', 'Other'];
@@ -94,15 +95,32 @@ export default function EventsPage() {
 
       {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
       {loading && <p className="text-sm text-[#8A86A3]">Loading events...</p>}
+    
 
       {!loading && (
-        <div className="space-y-3 max-w-2xl">
-          {events.map((ev) => (
-            <EventCard key={ev.id} event={ev} onDelete={isAdminUser ? () => handleDelete(ev.id) : null} />
-          ))}
-          {events.length === 0 && <p className="text-sm text-[#8A86A3]">No events in this category yet.</p>}
-        </div>
+  <div className="flex gap-6 items-start">
+
+    {/* Events */}
+    <div className="flex-1 space-y-3 max-w-2xl">
+      {events.map((ev) => (
+        <EventCard
+          key={ev.id}
+          event={ev}
+          onDelete={ev.createdBy === me?.id ? () => handleDelete(ev.id) : null}
+        />
+      ))}
+
+      {events.length === 0 && (
+        <p className="text-sm text-[#8A86A3]">
+          No events in this category yet.
+        </p>
       )}
+    </div>
+
+    {/* Right Sidebar Advertisement */}
+    <BannerAd orientation="vertical" />
+  </div>
+)}
     </div>
   );
 }

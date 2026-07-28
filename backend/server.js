@@ -15,6 +15,7 @@ const chatRoutes = require("./routes/chatRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const bannerAdRoutes = require("./routes/bannerAds");
 const seedAdmins = require("./utils/seedAdmins");
 
 const app = express();
@@ -48,6 +49,7 @@ app.use("/api/chats", chatRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/banner-ads", bannerAdRoutes);
 
 // Error handling (must be last)
 app.use(notFound);

@@ -14,6 +14,10 @@ import {
   fetchReports,
   reviewReport,
   sendCustomNotification,
+  fetchBannerAds,
+  createBannerAd,
+  updateBannerAd,
+  deleteBannerAd,
 } from '@/lib/admin';
 import { fetchEvents, deleteEvent } from '@/lib/events';
 import EventForm from '@/components/EventForm';
@@ -66,6 +70,12 @@ export default function AdminPanelPage() {
   const [notifSuccess, setNotifSuccess] = useState(false);
   const [notifError, setNotifError] = useState('');
 
+  // Banner Ads Tab states
+  const [bannerAds, setBannerAds] = useState([]);
+  const [bannerAdsLoading, setBannerAdsLoading] = useState(false);
+  const [showBannerForm, setShowBannerForm] = useState(false);
+  const [bannerFormData, setBannerFormData] = useState({ title: '', description: '', imageUrl: '', targetUrl: '', isActive: false, orientation: 'horizontal', durationDays: '7' });
+
   // Global actions error/success
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
@@ -92,6 +102,8 @@ export default function AdminPanelPage() {
       loadEvents();
     } else if (activeTab === 'reports') {
       loadReports();
+    } else if (activeTab === 'banner_ads') {
+      loadBannerAds();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticated, activeTab, userPage, userFilter]);
@@ -262,6 +274,53 @@ export default function AdminPanelPage() {
     }
   };
 
+  // --- BANNER ADS API CALLS ---
+  const loadBannerAds = async () => {
+    setBannerAdsLoading(true);
+    try {
+      const data = await fetchBannerAds();
+      setBannerAds(data);
+    } catch (err) {
+      setActionError(err.message || 'Failed to load banner ads');
+    } finally {
+      setBannerAdsLoading(false);
+    }
+  };
+
+  const handleCreateBannerAd = async (e) => {
+    e.preventDefault();
+    try {
+      await createBannerAd(bannerFormData);
+      showSuccess('Banner ad created successfully');
+      setBannerFormData({ title: '', description: '', imageUrl: '', targetUrl: '', isActive: false, orientation: 'horizontal', durationDays: '7' });
+      setShowBannerForm(false);
+      loadBannerAds();
+    } catch (err) {
+      showError(err.message || 'Failed to create banner ad');
+    }
+  };
+
+  const handleToggleBannerAd = async (id, currentStatus) => {
+    try {
+      await updateBannerAd(id, { isActive: !currentStatus });
+      showSuccess('Banner ad status updated');
+      loadBannerAds();
+    } catch (err) {
+      showError(err.message || 'Failed to update banner ad');
+    }
+  };
+
+  const handleDeleteBannerAd = async (id) => {
+    if (!window.confirm('Delete this banner ad?')) return;
+    try {
+      await deleteBannerAd(id);
+      showSuccess('Banner ad deleted');
+      loadBannerAds();
+    } catch (err) {
+      showError(err.message || 'Failed to delete banner ad');
+    }
+  };
+
   // --- PASSWORD RE-AUTH HANDLER ---
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
@@ -341,7 +400,7 @@ export default function AdminPanelPage() {
         </div>
 
         <div className="flex gap-2">
-          {['users', 'events', 'reports', 'notifications'].map((tab) => (
+          {['users', 'events', 'reports', 'notifications', 'banner_ads'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -351,7 +410,7 @@ export default function AdminPanelPage() {
                   : 'bg-white border border-[#EEEDFB] text-[#8A86A3] hover:bg-[#F4F3FE] hover:text-[#6C5CE7]'
               }`}
             >
-              {tab}
+              {tab.replace('_', ' ')}
             </button>
           ))}
         </div>
@@ -786,6 +845,186 @@ export default function AdminPanelPage() {
               {notifLoading ? 'Sending...' : 'Broadcast Notification'}
             </button>
           </form>
+        </div>
+      )}
+
+      {/* --- TAB CONTENT: BANNER ADS --- */}
+      {activeTab === 'banner_ads' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between bg-white p-4 rounded-2xl border border-[#EEEDFB] shadow-sm">
+            <h2 className="text-lg font-bold text-[#1E1B2E]">Banner Ads Management</h2>
+            <button
+              onClick={() => setShowBannerForm((v) => !v)}
+              className="px-4 py-2 rounded-xl bg-[#6C5CE7] text-white text-sm font-medium"
+            >
+              {showBannerForm ? 'Cancel' : '+ Add Banner'}
+            </button>
+          </div>
+
+          {showBannerForm && (
+            <div className="bg-white p-6 rounded-3xl border border-[#EEEDFB] shadow-sm max-w-xl">
+              <form onSubmit={handleCreateBannerAd} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#8A86A3] uppercase tracking-wider mb-2">Title</label>
+                  <input
+                    type="text"
+                    value={bannerFormData.title}
+                    onChange={(e) => setBannerFormData({ ...bannerFormData, title: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] text-sm text-[#1E1B2E] focus:outline-none focus:border-[#6C5CE7] focus:bg-white transition-all"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#8A86A3] uppercase tracking-wider mb-2">Description</label>
+                  <input
+                    type="text"
+                    value={bannerFormData.description}
+                    onChange={(e) => setBannerFormData({ ...bannerFormData, description: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] text-sm text-[#1E1B2E] focus:outline-none focus:border-[#6C5CE7] focus:bg-white transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#8A86A3] uppercase tracking-wider mb-2">Image URL</label>
+                  <input
+                    type="text"
+                    placeholder="https://example.com/image.jpg or /ads/foofoo.avif"
+                    value={bannerFormData.imageUrl}
+                    onChange={(e) => setBannerFormData({ ...bannerFormData, imageUrl: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] text-sm text-[#1E1B2E] focus:outline-none focus:border-[#6C5CE7] focus:bg-white transition-all"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#8A86A3] uppercase tracking-wider mb-2">Target URL</label>
+                  <input
+                    type="text"
+                    placeholder="Where the ad links to"
+                    value={bannerFormData.targetUrl}
+                    onChange={(e) => setBannerFormData({ ...bannerFormData, targetUrl: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] text-sm text-[#1E1B2E] focus:outline-none focus:border-[#6C5CE7] focus:bg-white transition-all"
+                  />
+                </div>
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <label className="block text-xs font-bold text-[#8A86A3] uppercase tracking-wider mb-2">Orientation</label>
+                    <select
+                      value={bannerFormData.orientation}
+                      onChange={(e) => setBannerFormData({ ...bannerFormData, orientation: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] text-sm text-[#1E1B2E] focus:outline-none focus:border-[#6C5CE7] focus:bg-white transition-all"
+                    >
+                      <option value="horizontal">Horizontal (Homepage/Market)</option>
+                      <option value="vertical">Vertical (Events/Notifications)</option>
+                    </select>
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xs font-bold text-[#8A86A3] uppercase tracking-wider mb-2">Duration</label>
+                    <select
+                      value={bannerFormData.durationDays}
+                      onChange={(e) => setBannerFormData({ ...bannerFormData, durationDays: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl border border-[#EEEDFB] bg-[#FAFAFC] text-sm text-[#1E1B2E] focus:outline-none focus:border-[#6C5CE7] focus:bg-white transition-all"
+                    >
+                      <option value="7">7 Days</option>
+                      <option value="15">15 Days</option>
+                      <option value="30">30 Days</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={bannerFormData.isActive}
+                    onChange={(e) => setBannerFormData({ ...bannerFormData, isActive: e.target.checked })}
+                    id="bannerIsActive"
+                    className="w-4 h-4 text-[#6C5CE7] border-[#EEEDFB] rounded focus:ring-[#6C5CE7]"
+                  />
+                  <label htmlFor="bannerIsActive" className="text-sm font-semibold text-[#1E1B2E]">Set as Active</label>
+                </div>
+                <button
+                  type="submit"
+                  className="w-full py-3 px-6 rounded-xl bg-[#6C5CE7] text-white font-semibold hover:bg-[#5b4cc4] active:scale-98 transition-all text-sm"
+                >
+                  Create Banner Ad
+                </button>
+              </form>
+            </div>
+          )}
+
+          <div className="bg-white rounded-3xl border border-[#EEEDFB] overflow-hidden shadow-sm">
+            {bannerAdsLoading ? (
+              <div className="p-12 text-center text-sm text-[#8A86A3]">Loading banner ads...</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-[#FAFAFC] border-b border-[#EEEDFB] text-xs font-semibold text-[#8A86A3] uppercase tracking-wider">
+                      <th className="px-6 py-4">Image</th>
+                      <th className="px-6 py-4">Title / Desc</th>
+                      <th className="px-6 py-4">Config</th>
+                      <th className="px-6 py-4">Status / Expiry</th>
+                      <th className="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#EEEDFB] text-sm text-[#1E1B2E]">
+                    {bannerAds.map((ad) => {
+                      const isExpired = ad.expiresAt && new Date(ad.expiresAt) < new Date();
+                      return (
+                      <tr key={ad._id} className="hover:bg-[#FAFAFC]/50 transition-colors">
+                        <td className="px-6 py-4">
+                          <img src={ad.imageUrl} alt={ad.title} className="h-12 w-24 object-cover rounded-lg border border-[#EEEDFB]" />
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="font-semibold">{ad.title}</p>
+                          <p className="text-xs text-[#8A86A3]">{ad.description}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="text-xs capitalize font-medium text-[#1E1B2E]">{ad.orientation || 'horizontal'}</p>
+                          {ad.targetUrl ? <a href={ad.targetUrl} target="_blank" rel="noreferrer" className="text-xs text-[#6C5CE7]">Link</a> : <span className="text-xs text-[#8A86A3]">-</span>}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-1 items-start">
+                            {ad.isActive && !isExpired ? (
+                              <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-600 border border-green-100">
+                                Active
+                              </span>
+                            ) : (
+                              <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#FAFAFC] text-[#8A86A3] border border-[#EEEDFB]">
+                                Inactive
+                              </span>
+                            )}
+                            {ad.expiresAt && (
+                              <span className={`text-[10px] font-semibold ${isExpired ? 'text-red-500' : 'text-[#8A86A3]'}`}>
+                                {isExpired ? 'Expired: ' : 'Exp: '}{new Date(ad.expiresAt).toLocaleDateString()}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-right space-x-2">
+                          <button
+                            onClick={() => handleToggleBannerAd(ad._id, ad.isActive)}
+                            className="px-3 py-1.5 border border-[#EEEDFB] text-[#1E1B2E] hover:bg-[#F4F3FE] hover:text-[#6C5CE7] rounded-lg text-xs font-semibold"
+                          >
+                            {ad.isActive ? 'Deactivate' : 'Activate'}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteBannerAd(ad._id)}
+                            className="px-3 py-1.5 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg text-xs font-semibold"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                    })}
+                    {bannerAds.length === 0 && (
+                      <tr>
+                        <td colSpan="5" className="px-6 py-12 text-center text-sm text-[#8A86A3] italic">No banner ads found.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
