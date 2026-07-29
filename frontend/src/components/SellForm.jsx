@@ -262,15 +262,15 @@ export default function SellForm({ editId, initialData }) {
               <label className="flex items-center gap-3 rounded-2xl border border-[#EEEDFB] p-4 cursor-pointer hover:bg-[#F4F3FE]">
                 <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} className="w-4 h-4 accent-[#6C5CE7]" />
                 <div>
-                  <p className="text-sm font-medium">Feature this listing</p>
-                  <p className="text-xs text-[#8A86A3]">Featured items appear in the Home page Featured section.</p>
+                  <p className="text-sm font-medium">Feature this listing (15 days)</p>
+                  <p className="text-xs text-[#8A86A3]">Featured items appear in the Home page Featured section for 15 days.</p>
                 </div>
               </label>
               <label className="flex items-center gap-3 rounded-2xl border border-[#EEEDFB] p-4 cursor-pointer hover:bg-[#F4F3FE]">
                 <input type="checkbox" checked={urgent} onChange={(e) => setUrgent(e.target.checked)} className="w-4 h-4 accent-[#6C5CE7]" />
                 <div>
-                  <p className="text-sm font-medium">Mark as urgent sale</p>
-                  <p className="text-xs text-[#8A86A3]">Shows an urgent badge so buyers notice it first.</p>
+                  <p className="text-sm font-medium">Mark as urgent sale (7 days)</p>
+                  <p className="text-xs text-[#8A86A3]">Shows an urgent badge so buyers notice it first for 7 days.</p>
                 </div>
               </label>
             </>

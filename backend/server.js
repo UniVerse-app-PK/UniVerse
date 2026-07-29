@@ -17,12 +17,14 @@ const adminRoutes = require("./routes/adminRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const bannerAdRoutes = require("./routes/bannerAds");
 const seedAdmins = require("./utils/seedAdmins");
+const { startScheduler } = require("./utils/scheduler");
 
 const app = express();
 
 // Connect to MongoDB
 connectDB().then(() => {
   seedAdmins();
+  startScheduler();
 });
 
 // Middleware

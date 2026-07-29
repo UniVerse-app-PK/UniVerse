@@ -66,6 +66,14 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    premiumExpiresAt: {
+      type: Date,
+      default: null,
+    },
+    premiumWarned: {
+      type: Boolean,
+      default: false,
+    },
     verifiedSeller: {
       type: Boolean,
       default: false,

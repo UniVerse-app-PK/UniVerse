@@ -40,6 +40,10 @@ exports.createListing = async (req, res) => {
     // for free users rather than trusting whatever the client sent.
     const canBoost = !!req.user.isPremium;
 
+    const isFeatured = canBoost ? Boolean(featured) : false;
+    const isUrgent = canBoost ? Boolean(urgent) : false;
+    const now = Date.now();
+
     const listing = await Listing.create({
       title,
       category,
@@ -48,8 +52,10 @@ exports.createListing = async (req, res) => {
       condition,
       location,
       photos: photos || [],
-      featured: canBoost ? Boolean(featured) : false,
-      urgent: canBoost ? Boolean(urgent) : false,
+      featured: isFeatured,
+      featuredExpiresAt: isFeatured ? new Date(now + 15 * 24 * 60 * 60 * 1000) : null,
+      urgent: isUrgent,
+      urgentExpiresAt: isUrgent ? new Date(now + 7 * 24 * 60 * 60 * 1000) : null,
       seller: req.user._id,
     });
 
@@ -172,8 +178,22 @@ exports.updateListing = async (req, res) => {
 
     // Featured/urgent boosts are a Premium perk.
     if (req.user.isPremium) {
-      if (req.body.featured !== undefined) listing.featured = Boolean(req.body.featured);
-      if (req.body.urgent !== undefined) listing.urgent = Boolean(req.body.urgent);
+      if (req.body.featured !== undefined) {
+        const newFeatured = Boolean(req.body.featured);
+        listing.featured = newFeatured;
+        listing.featuredExpiresAt = newFeatured
+          ? new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
+          : null;
+        listing.featuredWarned = false; // reset warning for new cycle
+      }
+      if (req.body.urgent !== undefined) {
+        const newUrgent = Boolean(req.body.urgent);
+        listing.urgent = newUrgent;
+        listing.urgentExpiresAt = newUrgent
+          ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          : null;
+        listing.urgentWarned = false; // reset warning for new cycle
+      }
     }
 
     await listing.save();

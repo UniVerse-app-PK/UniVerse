@@ -75,7 +75,23 @@ const listingSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    featuredExpiresAt: {
+      type: Date,
+      default: null,
+    },
+    featuredWarned: {
+      type: Boolean,
+      default: false,
+    },
     urgent: {
+      type: Boolean,
+      default: false,
+    },
+    urgentExpiresAt: {
+      type: Date,
+      default: null,
+    },
+    urgentWarned: {
       type: Boolean,
       default: false,
     },

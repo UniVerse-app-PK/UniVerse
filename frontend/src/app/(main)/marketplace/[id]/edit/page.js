@@ -25,7 +25,8 @@ export default function EditListingPage({ params }) {
       .then((data) => {
         if (cancelled) return;
         const me = getUser();
-        if (data.sellerId !== (me?.id || me?._id)) {
+        const myId = me?.id || me?._id;
+        if (!data.sellerId || !myId || String(data.sellerId) !== String(myId)) {
           setError("You can only edit your own listings.");
           return;
         }

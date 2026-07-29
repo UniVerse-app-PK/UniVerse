@@ -24,6 +24,13 @@ export default function PremiumPage() {
   const [showQR, setShowQR] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
 
+  function getDaysRemaining(expiresAt) {
+    if (!expiresAt) return null;
+    const diff = new Date(expiresAt) - Date.now();
+    if (diff <= 0) return 0;
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  }
+
   useEffect(() => {
     if (!ready) return;
     setUser(getUser());
@@ -181,8 +188,17 @@ export default function PremiumPage() {
   </div>
 
   {user?.isPremium ? (
-    <div className="inline-flex items-center gap-2 bg-emerald-500 px-6 py-3 rounded-xl font-semibold shadow-lg">
-      ✓ Premium Active
+    <div className="space-y-2">
+      <div className="inline-flex items-center gap-2 bg-emerald-500 px-6 py-3 rounded-xl font-semibold shadow-lg">
+        ✓ Premium Active
+      </div>
+      {user?.premiumExpiresAt && (
+        <p className="text-white/80 text-sm">
+          {getDaysRemaining(user.premiumExpiresAt) > 0
+            ? `${getDaysRemaining(user.premiumExpiresAt)} day${getDaysRemaining(user.premiumExpiresAt) !== 1 ? 's' : ''} remaining`
+            : 'Expiring soon'}
+        </p>
+      )}
     </div>
   ) : (
     <button
