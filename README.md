@@ -5,7 +5,7 @@ A university campus marketplace — buy, sell, and chat with other students. Bro
 ## Tech stack
 
 - **Frontend:** Next.js 16 (App Router), Tailwind CSS
-- **Backend:** Node.js, Express, MongoDB (Mongoose)
+- **Backend:** Node.js, MongoDB 
 - **Real-time:** Socket.io (chat)
 - **Auth:** JWT + email OTP verification
 - **Images:** Cloudinary
