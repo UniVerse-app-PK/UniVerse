@@ -35,6 +35,13 @@ exports.registerUser = async (req, res) => {
 
     const existingUser = await User.findOne({ email: email.toLowerCase() });
 
+    if (existingUser && existingUser.verified) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already registered",
+      });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const otp = generateOTP();
     const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 min
@@ -42,13 +49,6 @@ exports.registerUser = async (req, res) => {
     let user;
 
     if (existingUser) {
-      if (existingUser.verified) {
-        return res.status(400).json({
-          success: false,
-          message: "Email already registered",
-        });
-      }
-      
       // Overwrite unverified account details
       existingUser.name = name;
       existingUser.password = hashedPassword;
@@ -70,10 +70,9 @@ exports.registerUser = async (req, res) => {
       });
     }
 
-    // Always log the OTP too, so local testing still works even if the
-    // email provider isn't configured yet or is momentarily down.
     console.log(`📩 Verification OTP for ${user.email}: ${otp}`);
 
+    // AWAIT the email dispatch. Throw error if sending fails so Vercel logs it properly
     try {
       await sendEmail({
         to: user.email,
@@ -86,14 +85,16 @@ exports.registerUser = async (req, res) => {
         }),
       });
     } catch (emailError) {
-      // Don't fail registration just because the email didn't go out -
-      // the OTP is still valid and logged above for dev/testing.
-      console.error("⚠️  Failed to send verification email:", emailError.message);
+      console.error("❌ Email Delivery Error:", emailError);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send OTP email. Please check your network or try again.",
+      });
     }
 
     res.status(201).json({
       success: true,
-      message: "User registered successfully. Check console for OTP (dev mode).",
+      message: "User registered successfully. Verification OTP sent!",
       userId: user._id,
       ...(process.env.NODE_ENV !== "production" && { devOTP: otp }),
     });
@@ -203,12 +204,16 @@ exports.resendOTP = async (req, res) => {
         }),
       });
     } catch (emailError) {
-      console.error("⚠️  Failed to resend verification email:", emailError.message);
+      console.error("❌ Failed to resend verification email:", emailError);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to resend OTP email. Please try again later.",
+      });
     }
 
     res.status(200).json({
       success: true,
-      message: "Verification code resent successfully. Check console for OTP (dev mode).",
+      message: "Verification code resent successfully.",
       ...(process.env.NODE_ENV !== "production" && { devOTP: otp }),
     });
   } catch (error) {
@@ -305,7 +310,6 @@ exports.forgotPassword = async (req, res) => {
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
-      // Avoid leaking which emails exist
       return res.status(200).json({
         success: true,
         message: "If that email is registered, a reset code has been sent",
@@ -331,7 +335,7 @@ exports.forgotPassword = async (req, res) => {
         }),
       });
     } catch (emailError) {
-      console.error("⚠️  Failed to send password reset email:", emailError.message);
+      console.error("❌ Failed to send password reset email:", emailError);
     }
 
     res.status(200).json({

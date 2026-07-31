@@ -143,8 +143,9 @@ export default function NotificationsPage() {
         </div>
 
         {/* Advertisement Sidebar */}
-        <BannerAd orientation="vertical" />
-
+        <div className="hidden lg:block shrink-0">
+          <BannerAd orientation="vertical" />
+        </div>  
       </div>
 
     </div>

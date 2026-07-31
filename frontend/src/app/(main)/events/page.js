@@ -43,8 +43,6 @@ export default function EventsPage() {
     setShowForm((v) => !v);
   }
 
-
-
   async function handleDelete(id) {
     if (!window.confirm('Delete this event?')) return;
     try {
@@ -56,8 +54,8 @@ export default function EventsPage() {
   }
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-5">
+    <div className="p-8 sm:p-6 md:p-8 w-full max-w-[1400px]">
+      <div className="flex items-center justify-between mb-5 max-w-2xl">
         <h1 className="text-2xl font-semibold">Events</h1>
         {isAdminUser && (
           <button onClick={handleAddEventClick} className="px-4 py-2 rounded-xl bg-[#6C5CE7] text-white text-sm font-medium">
@@ -79,7 +77,7 @@ export default function EventsPage() {
         </div>
       )}
 
-      <div className="flex gap-2 mb-6 flex-wrap">
+      <div className="flex gap-2 mb-6 flex-wrap max-w-2xl">
         {tabs.map((t) => (
           <button
             key={t}
@@ -96,31 +94,41 @@ export default function EventsPage() {
       {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
       {loading && <p className="text-sm text-[#8A86A3]">Loading events...</p>}
     
-
       {!loading && (
-  <div className="flex gap-6 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 items-start w-full">
 
-    {/* Events */}
-    <div className="flex-1 space-y-3 max-w-2xl">
-      {events.map((ev) => (
-        <EventCard
-          key={ev.id}
-          event={ev}
-          onDelete={ev.createdBy === me?.id ? () => handleDelete(ev.id) : null}
-        />
-      ))}
+          {/* Events */}
+          <div className="flex-1 space-y-3 w-full max-w-2xl">
+            {events.map((ev) => (
+              <EventCard
+                key={ev.id}
+                event={ev}
+                onDelete={ev.createdBy === me?.id ? () => handleDelete(ev.id) : null}
+              />
+            ))}
 
-      {events.length === 0 && (
-        <p className="text-sm text-[#8A86A3]">
-          No events in this category yet.
-        </p>
+            {events.length === 0 && (
+              <p className="text-sm text-[#8A86A3]">
+                No events in this category yet.
+              </p>
+            )}
+          </div>
+
+          {/* Advertisements */}
+          <div className="w-full lg:w-auto shrink-0 mt-0 lg:mt-0">
+            {/* Horizontal Banner (Smaller Screens Only) */}
+            <div className="block lg:hidden w-full">
+              <BannerAd orientation="horizontal" />
+            </div>
+            
+            {/* Vertical Banner (Larger Screens Only) */}
+            <div className="hidden lg:block">
+              <BannerAd orientation="vertical" />
+            </div>
+          </div>
+
+        </div>
       )}
-    </div>
-
-    {/* Right Sidebar Advertisement */}
-    <BannerAd orientation="vertical" />
-  </div>
-)}
     </div>
   );
 }
