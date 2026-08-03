@@ -83,10 +83,6 @@ export default function EditProfilePage() {
             initials
           )}
         </div>
-        <label className="px-4 py-2 rounded-xl border border-[#EEEDFB] text-sm font-medium cursor-pointer hover:bg-[#F4F3FE]">
-          {uploadingAvatar ? 'Uploading...' : 'Change photo'}
-          <input type="file" accept="image/*" onChange={handleAvatarChange} disabled={uploadingAvatar} className="hidden" />
-        </label>
       </div>
 
       <form onSubmit={handleSave} className="space-y-4">

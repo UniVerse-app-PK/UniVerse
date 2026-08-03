@@ -52,7 +52,7 @@ const faqs = [
   {
     question: 'Who do I contact if I need more help?',
     answer:
-      'If your question is not answered here, you can reach out to our support team at support@universe-app.com. We typically respond within 24 hours.',
+      'If your question is not answered here, you can reach out to our support team at universe.app.pk@gmail.com. We typically respond within 24 hours.',
   },
 ];
 

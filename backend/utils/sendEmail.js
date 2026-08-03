@@ -9,11 +9,15 @@ const getTransporter = () => {
     transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: Number(process.env.EMAIL_PORT) || 587,
-      secure: Number(process.env.EMAIL_PORT) === 465, // true for port 465, false for 587/others[cite: 1]
+      secure: Number(process.env.EMAIL_PORT) === 465,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+      pool: true,
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     });
   }
   return transporter;
@@ -29,7 +33,7 @@ const sendEmail = async ({ to, subject, html }) => {
   // Wrapping in a Promise forces the serverless function to await the SMTP response
   return new Promise((resolve, reject) => {
     mailTransporter.sendMail({
-      from: process.env.EMAIL_FROM || `"UniVerse" <${process.env.EMAIL_USER}>`, //[cite: 1]
+      from: process.env.EMAIL_FROM || `"UniVerse" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       html,
