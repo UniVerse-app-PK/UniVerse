@@ -21,7 +21,7 @@
     "multer": "^2.2.0",
     "multer-storage-cloudinary": "^4.0.0",
     "node-cron": "^4.6.0",
-    "nodemailer": "^9.0.3",
+    "nodemailer": "^10.0.9",
     "socket.io": "^4.8.3",
     "validator": "^13.12.0"
   },
